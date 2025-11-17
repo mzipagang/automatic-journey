@@ -1,0 +1,72 @@
+[tool.poetry]
+name = "media-onsite-apis"
+version = "0.0.1"
+description = "The Kroger Ad Platform API"
+authors = ["Cesar Cavazos <cesar.cavazos@8451.com>"]
+maintainers = ["Carolina Lopez <carolina.lopez@8451.com>"]
+readme = "README.md"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+uvicorn = "0.32.0"
+fastapi = "^0.115.5"
+fastapi-versioning = ">=0.10.0"
+e451-monitoring = {version="^1.1", extras=["fastapi"]}
+python-jose = ">=3.3.0"
+pydantic = "^2.9"
+pydantic-settings = "^2.7.1"
+httpx = ">=0.23.3"
+redis = "^5.0.8"
+loguru = "^0.7.0"
+pytz = "^2024.2"
+harness-featureflags = "^1.6.0"
+tenacity = "9.0.0"
+fastapi-cache2 = "0.2.2"
+contextvars = "^2.4"
+
+[[tool.poetry.source]]
+name = "artifactory"
+url = "https://artifactory.8451.cloud/artifactory/api/pypi/python-all/simple"
+priority="primary"
+
+[[tool.poetry.source]]
+name = "pypi"
+priority="supplemental"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.2.2"
+httpx = ">=0.23.3"
+requests = ">=2.28.2"
+pytest-cov = "^4.0.0"
+pylint = "^3.3.3"
+pytest-httpx = ">=0.21.3"
+pytest-mock = "^3.10.0"
+pytest-asyncio = "0.23.6"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+
+[tool.autopep8]
+max_line_length = 120
+
+[tool.pylint.messages_control]
+extension-pkg-whitelist = "pydantic"
+max-line-length = 120
+disable = "C0114,C0116,C0115,R0903,E1136,R0913,R0801,R0914,W0102,W0108"
+
+[tool.poetry.group.test.dependencies]
+pytest = ">=7.2.2"
+pytest-cov = "^4.0.0"
+pytest-httpx = ">=0.21.3"
+pytest-mock = "^3.10.0"
+pytest-asyncio = "0.23.6"
+openapi-core = "^0.19.3"
+jsonschema = "^4.23.0"
+referencing = "^0.35.1"

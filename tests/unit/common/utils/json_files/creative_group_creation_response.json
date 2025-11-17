@@ -1,0 +1,283 @@
+{
+    "version": 1,
+    "contentVersion": 1,
+    "designGroupId": "f47bb78e-a27a-4553-ad1d-77a2a8ec7fa5",
+    "name": "API Discovery PPC 03 - API Discovery PPC 03-02",
+    "templateGroupId": "CAROUSEL_VIDEO",
+    "templateGroupDisplayName": "Carousel Video (Test)",
+    "creativeDesigns": [
+        {
+            "id": "88adbb86-08f9-4e67-8e1c-080d13c9ff58",
+            "templateId": "42bc82b8-d104-40cd-99df-2f303598bf90",
+            "templateVersion": 13,
+            "foreignTemplateId": "259",
+            "templateType": "VIDEO",
+            "name": "Carousel Video",
+            "width": 1920.0,
+            "height": 1080.0,
+            "fields": [
+                {
+                    "fieldElementName": "4b020d77-e61a-4ffc-9c0e-ca81372a1cfe",
+                    "fieldDataType": "ZONE",
+                    "zoneType": "IMAGE",
+                    "displayName": "Thumbnail Image",
+                    "rules": {
+                        "imageAspectRatio": {
+                            "ruleType": "imageAspectRatio",
+                            "requiredAspectRatio": {
+                                "width": 16.0,
+                                "height": 9.0
+                            }
+                        },
+                        "fileType": {
+                            "ruleType": "fileType",
+                            "supportedFileTypes": [
+                                "JPG",
+                                "PNG",
+                                "TIF"
+                            ]
+                        },
+                        "imageDimensions": {
+                            "ruleType": "imageDimensions",
+                            "minImageDimensions": {
+                                "unit": "px",
+                                "width": 1920.0,
+                                "height": 1080.0
+                            }
+                        },
+                        "fileSize": {
+                            "ruleType": "fileSize",
+                            "fileSize": 9,
+                            "fileSizeUnit": "MB"
+                        },
+                        "verticalSpacing": {
+                            "ruleType": "verticalSpacing",
+                            "maintainedSpacingParams": {
+                                "distanceInPixels": 0,
+                                "distanceFrom": "BELOW",
+                                "referencedElementType": "CANVAS",
+                                "relativeToType": "CONTENT"
+                            }
+                        },
+                        "horizontalSpacing": {
+                            "ruleType": "horizontalSpacing",
+                            "maintainedSpacingParams": {
+                                "distanceInPixels": 0,
+                                "distanceFrom": "RIGHT_OF",
+                                "referencedElementType": "CANVAS",
+                                "relativeToType": "CONTENT"
+                            }
+                        },
+                        "exportImageSeparateFile": {
+                            "ruleType": "exportImageSeparateFile",
+                            "exportImage": true
+                        }
+                    },
+                    "height": 1080.0,
+                    "left": 0.0,
+                    "top": 0.0,
+                    "width": 1920.0,
+                    "libraryValidations": {},
+                    "sourceSystem": "DESIGN_HUDDLE"
+                },
+                {
+                    "fieldElementName": "5cfc8af1-e99c-48ee-b402-ed6bc4fb9b44",
+                    "fieldDataType": "ZONE",
+                    "zoneType": "VIDEO",
+                    "displayName": "Video",
+                    "rules": {
+                        "imageAspectRatio": {
+                            "ruleType": "imageAspectRatio",
+                            "requiredAspectRatio": {
+                                "width": 16.0,
+                                "height": 9.0
+                            }
+                        },
+                        "mediaLength": {
+                            "ruleType": "mediaLength",
+                            "minLengthInSeconds": 5,
+                            "maxLengthInSeconds": 60
+                        },
+                        "fileType": {
+                            "ruleType": "fileType",
+                            "supportedFileTypes": [
+                                "ASF",
+                                "WMV",
+                                "M2TS",
+                                "TS",
+                                "MP4",
+                                "MOV",
+                                "MKV",
+                                "OGG",
+                                "FLV",
+                                "WMA",
+                                "3GP",
+                                "3G2",
+                                "AVI",
+                                "MXF",
+                                "MPG",
+                                "WEBM"
+                            ]
+                        },
+                        "imageDimensions": {
+                            "ruleType": "imageDimensions",
+                            "minImageDimensions": {
+                                "unit": "px",
+                                "width": 1920.0,
+                                "height": 1080.0
+                            }
+                        },
+                        "fileSize": {
+                            "ruleType": "fileSize",
+                            "fileSize": 200,
+                            "fileSizeUnit": "MB"
+                        },
+                        "verticalSpacing": {
+                            "ruleType": "verticalSpacing",
+                            "maintainedSpacingParams": {
+                                "distanceInPixels": 0,
+                                "distanceFrom": "BELOW",
+                                "referencedElementType": "CANVAS",
+                                "relativeToType": "CONTENT"
+                            }
+                        },
+                        "horizontalSpacing": {
+                            "ruleType": "horizontalSpacing",
+                            "maintainedSpacingParams": {
+                                "distanceInPixels": 0,
+                                "distanceFrom": "RIGHT_OF",
+                                "referencedElementType": "CANVAS",
+                                "relativeToType": "CONTENT"
+                            }
+                        }
+                    },
+                    "height": 1080.0,
+                    "left": 0.0,
+                    "top": 0.0,
+                    "width": 1920.0,
+                    "libraryValidations": {},
+                    "sourceSystem": "DESIGN_HUDDLE"
+                },
+                {
+                    "fieldElementName": "4bbc3fd2-fbc1-484d-b593-b89a3e3d3277",
+                    "fieldDataType": "ZONE",
+                    "zoneType": "IMAGE",
+                    "displayName": "Video Captions",
+                    "rules": {
+                        "fileType": {
+                            "ruleType": "fileType",
+                            "supportedFileTypes": [
+                                "VTT",
+                                "SRT"
+                            ]
+                        },
+                        "optionalField": {
+                            "ruleType": "optionalField"
+                        }
+                    },
+                    "height": 540.0,
+                    "left": 480.0,
+                    "top": 270.0,
+                    "width": 960.0,
+                    "libraryValidations": {},
+                    "sourceSystem": "KAP"
+                },
+                {
+                    "fieldElementName": "233010b0-890c-42bd-a5c0-c377b528acee",
+                    "fieldDataType": "ZONE",
+                    "zoneType": "IMAGE",
+                    "displayName": "Video Audio Description Track",
+                    "rules": {
+                        "fileType": {
+                            "ruleType": "fileType",
+                            "supportedFileTypes": [
+                                "MP3",
+                                "AAC",
+                                "M4A",
+                                "WAV"
+                            ]
+                        }
+                    },
+                    "height": 540.0,
+                    "left": 480.0,
+                    "top": 270.0,
+                    "width": 960.0,
+                    "libraryValidations": {},
+                    "sourceSystem": "KAP"
+                }
+            ],
+            "hasAltText": false,
+            "altTextCopyGuidelines": {
+                "questionAndExclamationMarkNotRecommended": false,
+                "shouldNotContainAllCaps": false,
+                "shouldNotContainAllCapsStrict": false,
+                "shouldNotEndWithPunctuation": false
+            },
+            "hasRenderWarningMessage": false,
+            "thumbnailAsset": {
+                "id": "68dab5a653be5d05d63d0812",
+                "fileName": "42bc82b8-d104-40cd-99df-2f303598bf90_v12_thumbnail.jpg",
+                "fileType": "image/jpeg",
+                "blobFileName": "17f20b91-ba00-46ed-873f-5b532cce7d3c.jpg",
+                "imageDimensions": {
+                    "width": 320.0,
+                    "height": 180.0
+                },
+                "publicUrl": "https://sa8451mapcmcstg.blob.core.windows.net/creative-assets-container/17f20b91-ba00-46ed-873f-5b532cce7d3c.jpg?sv=2025-01-05&se=2025-10-13T16%3A36%3A55Z&sr=b&sp=r&sig=fbUUK7x%2B9qT7qI4XSGzD0LjFU%2BL4664agakF8uTBg5Q%3D"
+            },
+            "outputFileType": "JPG",
+            "maxOutputFileSizeUnits": "KB",
+            "additionalSizes": []
+        }
+    ],
+    "fields": [],
+    "bulkUploadFields": [],
+    "status": "DRAFT",
+    "accountInfo": {
+        "accountId": "250b00f9-e642-49e7-8ba4-da8b51a73552",
+        "brandIds": [
+            "b253c44a-4f7e-4a5c-9641-f325bc0a481e"
+        ],
+        "agencyId": ""
+    },
+    "apiClientInfo": {
+        "clientType": "AD_GROUP",
+        "clientEntityDescription": "Ad Group",
+        "clientEntityName": "API Discovery PPC 03-02",
+        "clientEntityStatus": "Draft",
+        "clientEntityIdentifier": "68e406f9506a3897764cd580",
+        "clientEntityParentIdentifier": "68deedc215d262d3352728e9",
+        "clientEntityParentDescription": "Campaign",
+        "clientEntityParentName": "API Discovery PPC 03",
+        "clientEntityParentStatus": "ACTIVE",
+        "clientEntityParentLinkUrl": "/app/workflow/68deedc215d262d3352728e9/summary",
+        "dueDate": "2025-09-29",
+        "adStartDate": "2025-10-06",
+        "adEndDate": "2025-11-30",
+        "contacts": [
+            {
+                "id": "0054V00000FfsCWQAZ",
+                "type": "PRIMARY_CAMPAIGN_OPERATIONS"
+            },
+            {
+                "id": "0054V00000GBeCNQA1",
+                "type": "PRIMARY_ACCOUNT_MANAGER"
+            },
+            {
+                "id": "0054V00000GBeCNQA1",
+                "type": "PRIMARY_MEDIA_ACCOUNT_MANAGER"
+            },
+            {
+                "id": "0054V00000HZXOiQAP",
+                "type": "ACCOUNT_EXECUTIVE"
+            }
+        ],
+        "optionalFeatures": {
+            "featuredProductOverlay": {
+                "enabled": false
+            }
+        }
+    },
+    "warningMessages": [],
+    "requiresGeneratedAssets": false
+}

@@ -1,0 +1,49 @@
+name: KAP API Regression Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment-to-run:
+        type: choice
+        description: "Approval group name"
+        required: true
+        default: stg
+        options:
+          - stg-qe
+          - tst-qe
+
+  schedule:
+    # STG - Runs every day at 8:00 AM EST 
+    - cron: '0 12 * * *'
+    # TST - Runs every day at 9:00 AM EST
+    - cron: '0 13 * * *'
+
+
+jobs:
+  # Manual or Dev trigger
+  run-manual:
+    if: github.event_name == 'workflow_dispatch' && (
+      inputs.environment-to-run == 'stg-qe' ||
+      inputs.environment-to-run == 'tst-qe' ||
+      inputs.environment-to-run == 'dev'
+      )
+    uses: 8451LLC/api-quality-engineering/.github/workflows/api-test-runner-test.yml@main
+    with:
+      environment: aks-ur-${{ inputs.environment-to-run }}-media-onsite-apis
+    secrets: inherit
+
+  # Scheduled STG trigger
+  run-stg-schedule:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 12 * * *'
+    uses: 8451LLC/api-quality-engineering/.github/workflows/api-test-runner-test.yml@main
+    with:
+      environment: aks-ur-stg-qe-media-onsite-apis
+    secrets: inherit
+
+  # Scheduled TST trigger
+  run-tst-schedule:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 13 * * *'
+    uses: 8451LLC/api-quality-engineering/.github/workflows/api-test-runner-test.yml@main
+    with:
+      environment: aks-ur-tst-qe-media-onsite-apis
+    secrets: inherit

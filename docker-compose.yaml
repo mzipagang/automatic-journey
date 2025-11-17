@@ -1,0 +1,80 @@
+version: "3.9"
+services:
+
+  redis:
+    image: docker-all.artifactory.8451.cloud/redis:6.0.7
+    container_name: redis
+    restart: always
+    ports:
+      - '6379:6379'
+    networks:
+      - network
+    volumes:
+      - redis_volume_data:/data
+
+  redis_insights:
+    image: docker-all.artifactory.8451.cloud/redislabs/redisinsight:latest
+    container_name: redis_insights
+    restart: always
+    ports:
+      - '8001:8001'
+    networks:
+      - network
+    volumes:
+      - redis_insight_volume_data:/data
+    depends_on:
+      - redis
+
+  map-onsite-apis:
+    build:
+      context: ./
+      args:
+        - UVICORN_OPTS=--reload
+      secrets:
+        - ARTIFACTORY_USERNAME
+        - ARTIFACTORY_PASSWORD
+    image: map-onsite-apis:latest
+    container_name: map-onsite-apis
+    volumes:
+      - .:/app
+    ports:
+      - 8080:8080
+    environment:
+      SERVER_PORT: 8080
+      ENV: local
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+      REDIS_SSL: false
+      REDIS_PRIMARY_ACCESS_KEY: ''
+      REDIS_SOCKET_TIMEOUT: 10
+      REDIS_SOCKET_CONNECT_TIMEOUT: 10
+      HARNESS_API_KEY: ''
+    networks:
+      - network
+    depends_on:
+      - jaeger
+      - redis
+
+  jaeger:
+    image: docker-all.artifactory.8451.cloud/jaegertracing/all-in-one:1.22.0
+    container_name: jaeger
+    ports:
+      - '16686:16686'
+      - '6831:6831'
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge
+
+volumes:
+  redis_volume_data:
+  redis_insight_volume_data:
+
+secrets:
+  ARTIFACTORY_USERNAME:
+    environment: POETRY_HTTP_BASIC_ARTIFACTORY_USERNAME
+  ARTIFACTORY_PASSWORD:
+    environment: POETRY_HTTP_BASIC_ARTIFACTORY_PASSWORD

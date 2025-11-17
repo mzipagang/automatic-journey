@@ -1,0 +1,95 @@
+name: Harness Blue/Green Deploy
+
+run-name: Harness Blue/Green Deploy (${{ github.event.inputs.helm-chart-version}} -- ${{github.event.inputs.environments-to-deploy}})
+on:
+  workflow_dispatch:
+    inputs:
+      helm-chart-version:
+        required: true
+        description: "Version of the helm chart to be used"
+        type: string
+      environments-to-deploy:
+        required: true
+        description: "Comma delimited list of environments you want to deploy to - ex: dev,tst,stg"
+        type: string
+      approval_group:
+        type: choice
+        description: 'Approval group name'
+        required: true
+        options:
+          - gAZUCMOwnOprAdExpProdApprovers
+          - gAZMapProdApprovers
+
+jobs:
+  trigger-harness-aks-deploy:
+    name: (${{ github.event.inputs.helm-chart-version}} -- ${{github.event.inputs.environments-to-deploy}}) Trigger Harness deploy to AKS (via Helm)
+    uses: 8451LLC/sds-reusable-workflows/.github/workflows/harness-execute-pipeline-component.yml@v2
+    with:
+      org-identifier: "Media"
+      project-identifier: "Self_Serve_Onsite_APIs"
+      pipeline-identifier: "maponsiteapis"
+      should-wait-for-completion: true
+      yaml-input-string: |
+        'pipeline:
+          identifier: maponsiteapis
+          stages:
+            - stage:
+                identifier: Deploy_to_DEV
+                template:
+                  templateInputs:
+                    type: Deployment
+                    spec:
+                      service:
+                        serviceRef: maponsiteapis
+                        serviceInputs:
+                          serviceDefinition:
+                            type: Kubernetes
+                            spec:
+                              manifests:
+                                - manifest:
+                                    identifier: maponsiteapis
+                                    type: HelmChart
+                                    spec:
+                                      chartVersion: ${{ github.event.inputs.helm-chart-version }}
+          variables:
+            - name: approval_group
+              type: String
+              value: ${{ github.event.inputs.approval_group }}
+            - name: environments_to_deploy
+              type: String
+              value: ${{ github.event.inputs.environments-to-deploy }}'
+    secrets: inherit
+
+  map-environment-name:
+    name: Map Simplified Env Name
+    needs:
+      - trigger-harness-aks-deploy
+    runs-on: ${{ vars.EPHEMERAL_RUNNER_NAME }}
+    outputs:
+      resolved-env: ${{ steps.set-env.outputs.resolved-env }}
+    steps:
+      - id: set-env
+        run: |
+          INPUT="${{ github.event.inputs.environments-to-deploy }}"
+          
+          if [[ "$INPUT" == *"dev"* ]]; then
+            echo "resolved-env=dev" >> $GITHUB_OUTPUT
+          elif [[ "$INPUT" == *"tst"* ]]; then
+            echo "resolved-env=tst" >> $GITHUB_OUTPUT
+          elif [[ "$INPUT" == *"stg"* ]]; then
+            echo "resolved-env=stg-qe" >> $GITHUB_OUTPUT
+          else
+            echo "No matching env found" >&2
+          fi
+
+  run-regression-tests:
+    name: Run KAP Regression Tests
+    needs:
+      - trigger-harness-aks-deploy
+      - map-environment-name
+    if: contains(inputs.environments-to-deploy, 'tst') || contains(inputs.environments-to-deploy, 'stg') || contains(inputs.environments-to-deploy, 'dev')
+    uses: 8451LLC/api-quality-engineering/.github/workflows/api-test-runner-test.yml@main
+    with:
+      environment: aks-ur-${{ needs.map-environment-name.outputs.resolved-env }}-media-onsite-apis
+      team-hook-url: ${{ vars.TEAMS_WEBHOOK_URL }}
+    secrets: inherit

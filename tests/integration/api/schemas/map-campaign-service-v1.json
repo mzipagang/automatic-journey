@@ -1,0 +1,2813 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "map-campaign-service OpenAPI Spec",
+    "contact": {
+      "name": "Campaign Intake Team",
+      "email": "CampaignIntakeDevs_DL@8451.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "health",
+      "description": "API endpoint(s) for health check"
+    },
+    {
+      "name": "metrics",
+      "description": "API endpoint(s) for Prometheus metrics"
+    },
+    {
+      "name": "campaign",
+      "description": "API endpoints for everything related to a campaign"
+    }
+  ],
+  "paths": {
+    "/health/liveness": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Check for service liveness",
+        "description": "Returns a 200 if the server is able to accept requests",
+        "responses": {
+          "200": {
+            "description": "successful response"
+          }
+        }
+      }
+    },
+    "/health/readiness": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Check for service readiness",
+        "description": "Returns a 200 if the service is ready to accept requests and is able to establish connectivitywith downstream dependencies. Will return a 500 if the service is unable to accepts requests dueto the health of downstream dependencies.",
+        "responses": {
+          "200": {
+            "description": "successful response"
+          },
+          "500": {
+            "description": "error response"
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "tags": [
+          "metrics"
+        ],
+        "summary": "Exposes Prometheus metrics",
+        "description": "Exposes Prometheus metrics, this endpoint is typically used by the Prometheus scraper to exportthe metrics to Thanos.",
+        "responses": {
+          "200": {
+            "description": "Successfully able to generate Prometheus metrics",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/campaign/{id}": {
+      "delete": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Deletes a campaign with the specified ID",
+        "description": "Deletes a campaign with the specified ID",
+        "operationId": "deleteCampaignByID",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID of the campaign to delete",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Patch request to update a campaign\u0027s data.",
+        "externalDocs": {
+          "description": "RFC6902 docs",
+          "url": "https://datatracker.ietf.org/doc/html/rfc6902"
+        },
+        "description": "Patch request to update a campaign\u0027s data. This endpoint confirms to the standards defined in RFC6902.",
+        "operationId": "patchCampaignByID",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID of the campaign to update",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body to update a campaign",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchCampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/patchCampaignResponseV1",
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/campaign/{id}/validate": {
+      "get": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Validate a campaign",
+        "description": "Validate a campaign to ensure it is ready to be published",
+        "operationId": "validateCampaignByID",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID of the campaign to validate",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "validationType",
+            "description": "Type of validation",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ValidationType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ValidateCampaign200Response"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidateCampaign422Response"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaign/{id}/validate": {
+      "get": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "Validate a campaign",
+        "description": "Validate a campaign to ensure it is ready to be published",
+        "operationId": "validateCampaignByIDV1",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID of the campaign to validate",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "validationType",
+            "description": "Type of validation",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ValidationType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ValidateCampaign200ResponseV1"
+          },
+          "400": {
+            "description": "Bad request",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "404": {
+            "description": "Campaign not found",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "422": {
+            "description": "Campaign contains validation errors",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          }
+        }
+      }
+    },
+    "/v0/campaign": {
+      "get": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Returns an array of campaigns",
+        "description": "Returns an array of campaigns. If an ID is provided then only one campaign will be returned.",
+        "operationId": "getCampaign",
+        "parameters": [
+          {
+            "name": "primaryAccountIDs",
+            "description": "the primary account ID of the campaign to return",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "id",
+            "description": "ID of the campaign to return",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalPartner",
+            "description": "Partner where this media campaign is activated",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/Partner"
+            }
+          },
+          {
+            "name": "externalPartnerID",
+            "description": "The ID of the campaign within the partner\u0027s system of record. This must be used together with externalPartner.",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "brandIDs",
+            "description": "the brandIDs of the campaign to return",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "page.offset",
+            "description": "The page to start at",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "page.size",
+            "description": "The total number of campaigns to return per page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetCampaigns"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign(s) not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Creates a campaign",
+        "description": "Creates a campaign in source of record",
+        "operationId": "createCampaign",
+        "requestBody": {
+          "description": "Creates a campaign in source of record",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/CreateCampaignResponse"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Updates a campaign",
+        "description": "Updates a campaign in source of record",
+        "operationId": "updateCampaign",
+        "requestBody": {
+          "description": "Updates a campaign in source of record",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaign/{id}": {
+      "get": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "Returns a campaign.",
+        "description": "Only one campaign will be returned.",
+        "operationId": "getCampaignV1",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID of the campaign to return",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeValidations",
+            "description": "If true, include validation results in the response. Default is true",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetCampaignResponseV1"
+          },
+          "400": {
+            "description": "Bad request",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "404": {
+            "description": "Campaign(s) not found",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "500": {
+            "description": "Internal server error",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "Deletes a campaign with the specified ID",
+        "description": "Deletes a campaign with the specified ID",
+        "operationId": "deleteCampaignByIDV1",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID of the campaign to delete",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "404": {
+            "description": "Campaign not found",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "Patch request to update a campaign\u0027s data.",
+        "externalDocs": {
+          "description": "RFC6902 docs",
+          "url": "https://datatracker.ietf.org/doc/html/rfc6902"
+        },
+        "description": "Patch request to update a campaign\u0027s data. This endpoint confirms to the standards defined in RFC6902.",
+        "operationId": "patchCampaignByIDV1",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID of the campaign to update",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body to update a campaign",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatchCampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "404": {
+            "description": "Campaign not found",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          }
+        }
+      }
+    },
+    "/v1/campaign/{id}/publish": {
+      "post": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "publishes a campaign",
+        "description": "publish a campaign",
+        "operationId": "publishCampaign",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID of the campaign to publish campaign",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Request body to publish a campaign",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishCampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Publish campaign request was successful",
+            "$ref": "#/components/responses/PublishCampaignAcceptedResponse"
+          },
+          "400": {
+            "description": "Publish campaign request failed from bad request data",
+            "$ref": "#/components/responses/PublishCampaignErrorResponse"
+          },
+          "401": {
+            "description": "Publish campaign request failed due to invalid credentials",
+            "$ref": "#/components/responses/PublishCampaignErrorResponse"
+          },
+          "403": {
+            "description": "Publish campaign request failed due to insufficient permissions",
+            "$ref": "#/components/responses/PublishCampaignErrorResponse"
+          },
+          "404": {
+            "description": "Publish campaign request failed due to campaign not found",
+            "$ref": "#/components/responses/PublishCampaignErrorResponse"
+          },
+          "409": {
+            "description": "Publish campaign request failed due to conflict",
+            "$ref": "#/components/responses/PublishCampaignErrorResponse"
+          },
+          "500": {
+            "description": "Publish campaign request failed due to internal server error",
+            "$ref": "#/components/responses/PublishCampaignErrorResponse"
+          }
+        }
+      }
+    },
+    "/v1/campaign/publishingstatus": {
+      "post": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "publishing status of a campaign",
+        "description": "publish status of a campaign",
+        "operationId": "publishingStatus",
+        "requestBody": {
+          "description": "Request body to update publishing status of a campaign",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishCampaign"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/PublishingStatusCampaign422Response"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaign/publishingstatusv1": {
+      "post": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "publishing status of a campaign",
+        "description": "publish status of a campaign",
+        "operationId": "publishingStatusV1",
+        "requestBody": {
+          "description": "Request body to update publishing status of a campaign",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishCampaignV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/PublishingStatusCampaign422Response"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaign": {
+      "post": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "Creates a campaign",
+        "description": "Creates a campaign in source of record",
+        "operationId": "createCampaignV1",
+        "requestBody": {
+          "description": "Creates a campaign in source of record",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/CreateCampaignResponse"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "Updates a campaign",
+        "description": "Updates a campaign in source of record",
+        "operationId": "updateCampaignV1",
+        "requestBody": {
+          "description": "Updates a campaign in source of record",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/campaign/activation/{id}": {
+      "get": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Returns an array of campaign activations",
+        "description": "Returns a campaign that has the specified activation ID.",
+        "operationId": "getCampaignActivation",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "ID of the activation attached to a campaign",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetCampaignByActivation"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign activation(s) not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/campaigns": {
+      "get": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Returns an array of all campaigns",
+        "description": "Returns an array of all campaigns.",
+        "operationId": "getAllCampaigns",
+        "parameters": [
+          {
+            "name": "page.offset",
+            "description": "The page to start at",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "page.size",
+            "description": "The total number of campaigns to return per page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetCampaigns"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign(s) not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Returns an array of all campaigns",
+        "description": "Returns an array of all campaigns.",
+        "operationId": "getCampaignWithParamsAndSort",
+        "requestBody": {
+          "description": "Creates a campaign in source of record",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/getCampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetCampaigns"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign(s) not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/campaigns": {
+      "get": {
+        "tags": [
+          "campaign_V1"
+        ],
+        "summary": "Returns an array of all campaigns",
+        "description": "Returns an array of all campaigns.",
+        "operationId": "getAllCampaignsV1",
+        "parameters": [
+          {
+            "name": "page.offset",
+            "description": "The page to start at",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "page.size",
+            "description": "The total number of campaigns to return per page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetCampaignsSuccessResponseV1"
+          },
+          "400": {
+            "description": "Bad request",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "404": {
+            "description": "Campaign(s) not found",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "500": {
+            "description": "Internal server error",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "campaign"
+        ],
+        "summary": "Returns an array of all campaigns",
+        "description": "Returns an array of all campaigns.",
+        "operationId": "getCampaignWithParamsAndSortV1",
+        "requestBody": {
+          "description": "Creates a campaign in source of record",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/getCampaignRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetCampaigns"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Campaign(s) not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/workflow/initialize": {
+      "post": {
+        "tags": [
+          "workflow"
+        ],
+        "summary": "Initialize a campaign",
+        "description": "Creates a empty campaign in source of record and returns campaingn ID",
+        "operationId": "initializeCampaign",
+        "parameters": [
+          {
+            "name": "campaignType",
+            "description": "Initialize with type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Type"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/CreateCampaignResponse"
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/workflow/initialize": {
+      "post": {
+        "tags": [
+          "workflow_V1"
+        ],
+        "summary": "Initialize a campaign",
+        "description": "Creates a empty campaign in source of record and returns campaingn ID",
+        "operationId": "initializeCampaignV1",
+        "requestBody": {
+          "description": "Creates a campaign in source of record",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInitializeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/CreateCampaignSuccessResponseV1"
+          },
+          "400": {
+            "description": "Bad request",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "$ref": "#/components/responses/GeneralCampaignOperationErrorResponseV1"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "PublishCampaignAcceptedResponse": {
+        "description": "Publish campaign request was accepted by downstream system",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PublishCampaignDeliveryStatus"
+            }
+          }
+        }
+      },
+      "PublishCampaignErrorResponse": {
+        "description": "Publish campaign request failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errors": {
+                  "$ref": "#/components/schemas/ErrorsV1"
+                }
+              },
+              "required": [
+                "errors"
+              ]
+            }
+          }
+        }
+      },
+      "GeneralCampaignOperationErrorResponseV1": {
+        "description": "failed campaign operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "errors": {
+                  "$ref": "#/components/schemas/ErrorsV1"
+                }
+              },
+              "required": [
+                "errors"
+              ]
+            }
+          }
+        }
+      },
+      "CreateCampaignSuccessResponseV1": {
+        "description": "successful campaign creation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/CreateCampaignResponseDataV1"
+                },
+                "meta": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "data"
+              ]
+            }
+          }
+        }
+      },
+      "CreateCampaignResponse": {
+        "description": "successful campaign creation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "shortId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          }
+        }
+      },
+      "GetCampaignResponseV1": {
+        "description": "successfully retrieved a campaign",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "validations": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CampaignValidation"
+                      }
+                    },
+                    "unpublishedChanges": {
+                      "$ref": "#/components/schemas/Campaign"
+                    },
+                    "publishedChanges": {
+                      "$ref": "#/components/schemas/Campaign"
+                    },
+                    "publishingMetaData": {
+                      "$ref": "#/components/schemas/DeliveryStatus"
+                    },
+                    "publishingStatus": {
+                      "type": "string"
+                    },
+                    "changes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Changes"
+                      }
+                    }
+                  }
+                },
+                "meta": {
+                  "$ref": "#/components/schemas/Meta"
+                }
+              },
+              "required": [
+                "data",
+                "meta"
+              ]
+            }
+          }
+        }
+      },
+      "PublishCampaignResponse": {
+        "description": "successful campaign creation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "messageId": {
+                  "type": "string"
+                },
+                "correlationId": {
+                  "type": "string"
+                },
+                "timestamp": {
+                  "type": "string"
+                },
+                "identity": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/PublishCampaignData"
+                }
+              }
+            }
+          }
+        }
+      },
+      "GetCampaign": {
+        "description": "successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Campaign"
+                },
+                "meta": {
+                  "$ref": "#/components/schemas/Meta"
+                }
+              },
+              "required": [
+                "data",
+                "meta"
+              ]
+            }
+          }
+        }
+      },
+      "patchCampaignResponseV1": {
+        "description": "successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Campaign"
+                },
+                "meta": {
+                  "$ref": "#/components/schemas/Meta"
+                }
+              },
+              "required": [
+                "data",
+                "meta"
+              ]
+            }
+          }
+        }
+      },
+      "GetCampaignsSuccessResponseV1": {
+        "description": "successful request for a list of campaigns",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GetCampaignResponseDataV1"
+                  }
+                },
+                "meta": {
+                  "$ref": "#/components/schemas/Meta"
+                }
+              },
+              "required": [
+                "data",
+                "meta"
+              ]
+            }
+          }
+        }
+      },
+      "GetCampaigns": {
+        "description": "successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Campaign"
+                  }
+                },
+                "meta": {
+                  "$ref": "#/components/schemas/Meta"
+                }
+              },
+              "required": [
+                "data",
+                "meta"
+              ]
+            }
+          }
+        }
+      },
+      "GetCampaignByActivation": {
+        "description": "successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/Campaign"
+                }
+              },
+              "required": [
+                "data"
+              ]
+            }
+          }
+        }
+      },
+      "PatchCampaignResponse": {
+        "description": "successful operation",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Campaign"
+            }
+          }
+        }
+      },
+      "PublishingStatusCampaign200Response": {
+        "description": "successfully publishingStatus of a campaign",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/DeliveryStatus"
+            }
+          }
+        }
+      },
+      "PublishingStatusCampaign422Response": {
+        "description": "campaign is not published",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "publishingStatus": {
+                  "$ref": "#/components/schemas/PublishingStatus"
+                },
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "required": [
+                "publishingStatus",
+                "errors"
+              ]
+            }
+          }
+        }
+      },
+      "ValidateCampaign200ResponseV1": {
+        "description": "successfully validated a campaign",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CampaignValidationSuccessV1"
+            }
+          }
+        }
+      },
+      "ValidateCampaign200Response": {
+        "description": "successfully validated a campaign",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "$ref": "#/components/schemas/CampaignValidationStatuses"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "ValidateCampaign422Response": {
+        "description": "campaign is invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "$ref": "#/components/schemas/CampaignValidationStatuses"
+                },
+                "errors": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              },
+              "required": [
+                "status",
+                "errors"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "PublishCampaignRequest": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateCampaignResponseDataV1": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "GetCampaignResponseDataV1": {
+        "type": "object",
+        "properties": {
+          "campaigns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Campaign"
+            }
+          }
+        }
+      },
+      "PatchCampaignRequest": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PatchAction"
+        }
+      },
+      "PatchAction": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "description": "The operation to perform.",
+            "type": "string",
+            "enum": [
+              "add",
+              "remove",
+              "replace",
+              "copy",
+              "move",
+              "test"
+            ]
+          },
+          "path": {
+            "description": "A JSON Pointer path",
+            "type": "string"
+          },
+          "value": {
+            "description": "thing"
+          }
+        },
+        "required": [
+          "op",
+          "path"
+        ]
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "brands": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "billingInfo": {
+            "$ref": "#/components/schemas/BillingInfo"
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClientContact"
+            }
+          },
+          "isAgencyBeingInvolved": {
+            "type": "boolean"
+          },
+          "agency": {
+            "$ref": "#/components/schemas/Agency"
+          }
+        }
+      },
+      "AdditionalBillingDetails": {
+        "type": "string",
+        "maxLength": 4000,
+        "nullable": true
+      },
+      "NotesForAccounting": {
+        "type": "string",
+        "nullable": true
+      },
+      "Agency": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "billingInfo": {
+            "$ref": "#/components/schemas/BillingInfo"
+          }
+        }
+      },
+      "BillingInfo": {
+        "type": "object",
+        "properties": {
+          "isBeingBilled": {
+            "type": "boolean"
+          },
+          "ioNumber": {
+            "type": "string"
+          },
+          "ioNumberId": {
+            "type": "integer"
+          },
+          "ioLastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ioLastModifiedBy": {
+            "type": "string"
+          },
+          "ioLastModifiedByUser": {
+            "type": "string"
+          },
+          "ioLineItemId": {
+            "type": "integer"
+          },
+          "ioLineItemLastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ioLineItemLastModifiedBy": {
+            "type": "string"
+          },
+          "poNumber": {
+            "type": "string"
+          },
+          "poLastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "poLastModifiedBy": {
+            "type": "string"
+          },
+          "poLastModifiedByUser": {
+            "type": "string"
+          },
+          "budgetShare": {
+            "type": "number"
+          },
+          "isPORequired": {
+            "type": "boolean",
+            "example": false
+          },
+          "isIORequired": {
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "Budget": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DAILY",
+              "WEEKLY",
+              "MONTHLY",
+              "CUSTOM"
+            ]
+          },
+          "pacingType": {
+            "type": "string",
+            "enum": [
+              "EVEN",
+              "ASAP"
+            ]
+          }
+        }
+      },
+      "PublishCampaignDeliveryStatus": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "IN_PROGRESS"
+                ]
+              },
+              "datetime": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "timezone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PublishCampaignData": {
+        "type": "object",
+        "properties": {
+          "campaignId": {
+            "type": "string"
+          },
+          "onsiteId": {
+            "type": "string"
+          },
+          "deliveryStatus": {
+            "$ref": "#/components/schemas/DeliveryStatus"
+          },
+          "onsiteadvertiserId": {
+            "type": "string"
+          }
+        }
+      },
+      "PublishCampaignDataV1": {
+        "type": "object",
+        "properties": {
+          "campaign": {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/Campaign"
+              },
+              "deliveryMetadata": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/DeliveryMetadata"
+                }
+              },
+              "deliveryStatus": {
+                "$ref": "#/components/schemas/DeliveryStatus"
+              }
+            }
+          }
+        }
+      },
+      "DeliveryMetadata": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "CampaignValidation": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Changes": {
+        "type": "object"
+      },
+      "DeliveryStatus": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "datetime": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "timezone": {
+                "type": "string"
+              }
+            }
+          },
+          "errorCode": {
+            "type": "integer"
+          },
+          "errorMessages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "field": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PublishCampaign": {
+        "type": "object",
+        "properties": {
+          "messageId": {
+            "type": "string"
+          },
+          "correlationId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "identity": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PublishCampaignData"
+          }
+        }
+      },
+      "PublishCampaignV1": {
+        "type": "object",
+        "properties": {
+          "messageId": {
+            "type": "string"
+          },
+          "correlationId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "identity": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PublishCampaignDataV1"
+          }
+        }
+      },
+      "Campaign": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "640f4047b80a4f46bca7e8f9"
+          },
+          "shortId": {
+            "type": "string",
+            "example": "123"
+          },
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdByUser": {
+            "type": "string"
+          },
+          "lastModified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedBy": {
+            "type": "string"
+          },
+          "lastModifiedByUser": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "backgroundInformation": {
+            "type": "string",
+            "nullable": true
+          },
+          "isAlwaysOn": {
+            "type": "boolean"
+          },
+          "primaryAccount": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "partnerAccounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            }
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "budget": {
+            "$ref": "#/components/schemas/Budget"
+          },
+          "additionalBillingDetails": {
+            "$ref": "#/components/schemas/AdditionalBillingDetails"
+          },
+          "notesForAccounting": {
+            "$ref": "#/components/schemas/NotesForAccounting"
+          },
+          "activations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "externalIDs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalID"
+            }
+          },
+          "internalContacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InternalContact"
+            }
+          },
+          "clickThroughDestinations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClickThroughDestination"
+            }
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "publishingStatus": {
+            "$ref": "#/components/schemas/PublishingStatus"
+          }
+        }
+      },
+      "CampaignValidationSuccessV1": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "$ref": "#/components/schemas/CampaignValidationStatuses"
+              }
+            }
+          },
+          "meta": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "CampaignValidationStatuses": {
+        "type": "string",
+        "enum": [
+          "VALID",
+          "INVALID"
+        ]
+      },
+      "ClientContact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "primary-client-contact",
+              "secondary-client-contact",
+              "billing-contact",
+              "creative-contact",
+              "creative-contact-2",
+              "creative-contact-3",
+              "creative-contact-4",
+              "invoice-contact",
+              "invoice-contact-1",
+              "invoice-contact-2",
+              "accounts-payable-contact",
+              "submitting-representative"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ]
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "primary-client-contact",
+              "billing-contact",
+              "creative-contact"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ]
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CORPORATE",
+              "ALTERNATE"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "code": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "message",
+          "code"
+        ]
+      },
+      "Errors": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "required": [
+          "errors"
+        ]
+      },
+      "ErrorDateTimeV1": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorV1": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "code": {
+            "type": "integer"
+          },
+          "datetime": {
+            "$ref": "#/components/schemas/ErrorDateTimeV1"
+          }
+        },
+        "required": [
+          "reason",
+          "code",
+          "datetime"
+        ]
+      },
+      "ErrorsV1": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ErrorV1"
+        }
+      },
+      "ExternalID": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "partner": {
+            "$ref": "#/components/schemas/Partner"
+          }
+        },
+        "required": [
+          "id",
+          "partner"
+        ]
+      },
+      "InternalContact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ACCOUNT_EXECUTIVE",
+              "ACCOUNT_EXECUTIVE_2",
+              "ACCOUNT_EXECUTIVE_3",
+              "ACCOUNT_EXECUTIVE_4",
+              "PRIMARY_CAMPAIGN_OPERATIONS",
+              "SECONDARY_CAMPAIGN_OPERATIONS",
+              "ADDITIONAL_CAMPAIGN_OPERATIONS",
+              "PRIMARY_ACCOUNT_MANAGER",
+              "ACCOUNT_MANAGER",
+              "SECONDARY_ACCOUNT_MANAGER",
+              "ADDITIONAL_ACCOUNT_MANAGER",
+              "PRIMARY_MEDIA_ACCOUNT_MANAGER",
+              "SECONDARY_MEDIA_ACCOUNT_MANAGER",
+              "ADDITIONAL_MEDIA_ACCOUNT_MANAGER",
+              "PRIMARY_SOCIAL_MEDIA_BUYER",
+              "SENIOR_SOCIAL_MEDIA_BUYER",
+              "SECONDARY_SOCIAL_MEDIA_BUYER",
+              "ADDITIONAL_SOCIAL_MEDIA_BUYER",
+              "PRIMARY_PROGRAMMATIC_MEDIA_BUYER",
+              "SENIOR_PROGRAMMATIC_MEDIA_BUYER",
+              "SECONDARY_PROGRAMMATIC_MEDIA_BUYER",
+              "ADDITIONAL_PROGRAMMATIC_MEDIA_BUYER",
+              "ACCOUNT_ASSOCIATE",
+              "ACCOUNT_ASSOCIATE_2",
+              "STRATEGIC_MEDIA_PLANNER",
+              "STRATEGIC_MEDIA_PLANNER_2",
+              "DATA_SCIENTIST"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ]
+      },
+      "ClickThroughDestination": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "bannerizedURL": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "divisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Division"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "bannerizedURL",
+          "name",
+          "divisions"
+        ]
+      },
+      "Division": {
+        "type": "object",
+        "properties": {
+          "clickThroughUrl": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "example": "001_ATLANTA"
+          }
+        }
+      },
+      "Meta": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "$ref": "#/components/schemas/PageMetadata"
+          }
+        }
+      },
+      "PageMetadata": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "integer"
+          },
+          "size": {
+            "type": "integer"
+          },
+          "hasMore": {
+            "type": "boolean"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Partner": {
+        "type": "string",
+        "enum": [
+          "KODDI_CAMPAIGN_ID",
+          "KODDI_ADVERTISER_ID",
+          "PIQ",
+          "API_NUMERIC_ID"
+        ]
+      },
+      "Source": {
+        "type": "string",
+        "minLength": 1
+      },
+      "Type": {
+        "type": "string",
+        "enum": [
+          "PLA",
+          "TOA",
+          "DIRECT_CONNECT"
+        ]
+      },
+      "Status": {
+        "type": "string",
+        "enum": [
+          "DRAFT",
+          "SCHEDULED",
+          "ACTIVE",
+          "PAUSED",
+          "ENDED"
+        ]
+      },
+      "PublishingStatus": {
+        "type": "string",
+        "enum": [
+          "PUBLISHED",
+          "PENDING",
+          "FAILED",
+          "IN_PROGRESS",
+          "EMPTY"
+        ]
+      },
+      "ValidationType": {
+        "type": "string",
+        "enum": [
+          "create",
+          "submit",
+          "approve"
+        ]
+      },
+      "CreateInitializeRequest": {
+        "type": "object",
+        "properties": {
+          "campaignType": {
+            "$ref": "#/components/schemas/Type"
+          }
+        }
+      },
+      "CreateCampaignRequest": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "backgroundInformation": {
+            "type": "string"
+          },
+          "primaryAccount": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "partnerAccounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            }
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 2,
+            "maxLength": 255
+          },
+          "budget": {
+            "$ref": "#/components/schemas/Budget"
+          },
+          "additionalBillingDetails": {
+            "type": "string"
+          },
+          "notesForAccounting": {
+            "type": "string"
+          },
+          "activations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          },
+          "externalIDs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalID"
+            }
+          },
+          "internalContacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InternalContact"
+            }
+          },
+          "clickThroughDestinations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClickThroughDestination"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "source",
+          "type"
+        ]
+      },
+      "getCampaignRequest": {
+        "type": "object",
+        "properties": {
+          "primaryAccountIDs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "id": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "externalPartner": {
+            "$ref": "#/components/schemas/Partner"
+          },
+          "externalPartnerID": {
+            "type": "integer"
+          },
+          "brandIDs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "page.offset": {
+            "type": "integer",
+            "default": 0,
+            "minimum": 0
+          },
+          "page.size": {
+            "type": "integer",
+            "default": 30,
+            "minimum": 1,
+            "maximum": 100
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "startDateRange": {
+            "type": "string",
+            "example": "yyyy/mm/dd,yyyy/mm/dd"
+          },
+          "endDateRange": {
+            "type": "string",
+            "example": "yyyy/mm/dd,yyyy/mm/dd"
+          },
+          "searchTerm": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Status"
+            }
+          },
+          "sortBy": {
+            "type": "string"
+          },
+          "shortIDs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "campaignType": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Type"
+            }
+          },
+          "publishingStatus": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublishingStatus"
+            }
+          }
+        }
+      },
+      "CampaignRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "640f4047b80a4f46bca7e8f9"
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "backgroundInformation": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "isAlwaysOn": {
+            "type": "boolean"
+          },
+          "primaryAccount": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "partnerAccounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            }
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 2,
+            "maxLength": 255
+          },
+          "budget": {
+            "$ref": "#/components/schemas/Budget"
+          },
+          "additionalBillingDetails": {
+            "type": "string"
+          },
+          "notesForAccounting": {
+            "type": "string"
+          },
+          "activations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "type": {
+            "$ref": "#/components/schemas/Type"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Status"
+          },
+          "externalIDs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExternalID"
+            }
+          },
+          "agency": {
+            "$ref": "#/components/schemas/Agency"
+          },
+          "internalContacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InternalContact"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "source",
+          "type"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/map-campaign-service",
+      "description": "API Gateway path"
+    }
+  ]
+}

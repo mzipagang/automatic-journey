@@ -1,0 +1,17 @@
+coverage.xml
+junit-results.xml
+log.txt
+venv/
+*.db
+.idea/
+**/__pycache__/
+.env
+**/Chart.lock
+helm/charts
+secrets/*
+build/lib/app
+.coverage
+dist/
+.DS_Store
+.python-version
+.vscode/

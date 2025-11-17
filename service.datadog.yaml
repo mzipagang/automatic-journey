@@ -1,0 +1,84 @@
+schema-version: v2.2
+dd-service: 'map-onsite-apis'
+type: web
+application: map-onsite-apis
+description: 'Service Catalog for Kroger Ad Platform API "map-onsite-apis"'
+tier: 'High'
+team: 'onsite-partnership-team'
+lifecycle: 'production'
+contacts:
+  - name: 'Support Email'
+    type: email
+    contact: 'MediaOnsitePartnership_DL@8451.com'
+
+  - name: 'Support Teams Channel'
+    type: microsoft-teams
+    contact: https://teams.microsoft.com/l/channel/19%3A0dedf2001f5a4c179a84b6380d0538fc%40thread.skype/Self%20Service%20Onsite?groupId=17478f21-53d2-434f-b801-e36f30e72618&tenantId=
+
+languages:
+  - python
+links:
+  - url: https://github.com/8451LLC/map-onsite-apis
+    name: Source Code
+    type: repo
+
+  #Jaeger Traces
+  - url: https://jaeger-query.aks-ur-dev-internal.8451.cloud/search?service=media-onsite-apis
+    name: Jaeger Traces (DEV)
+    type: other
+
+  - url: https://jaeger-query.aks-ur-tst-internal.8451.cloud/search?service=media-onsite-apis
+    name: Jaeger Traces (TST)
+    type: other
+
+  - url: https://jaeger-query.aks-ur-stg-internal.8451.cloud/search?service=media-onsite-apis
+    name: Jaeger Traces (STG)
+    type: other
+
+  - url: https://jaeger-query.aks-ur-prd-internal.8451.cloud/search?service=media-onsite-apis
+    name: Jaeger Traces (PRD)
+    type: other
+
+  #Aks Urls
+  - url: https://map-onsite-apis.aks-ur-dev-internal.8451.cloud
+    name: Map Onsite API DEV Url
+    type: other
+
+  - url: https://map-onsite-apis.aks-ur-tst-internal.8451.cloud
+    name: Map Onsite API TST Url
+    type: other
+
+  - url: https://map-onsite-apis.aks-ur-stg-internal.8451.cloud
+    name: Map Onsite API STG Url
+    type: other
+
+  - url: https://map-onsite-apis.aks-ur-prd-internal.8451.cloud
+    name: Map Onsite API PRD Url
+    type: other
+
+  #Documentation
+  - url: https://github.com/8451LLC/map-onsite-apis/blob/main/README.md
+    name: README
+    type: doc
+
+  - url: https://github.com/8451LLC/map-onsite-apis/blob/main/docs/Media%20Platform%20PLA%20API%20Integration.md
+    name: API Integration Document
+    type: doc
+
+  #Datadog Dashboards
+  - url: https://us3.datadoghq.com/dash/integration/57/kubernetes-pods-overview?tpl_var_namespace%5B0%5D=media-onsite-apis
+    name: K8s pod overview
+    type: dashboard
+
+  - url: https://us3.datadoghq.com/dash/integration/866/kubernetes---cpu--memory-usage?tpl_var_kube_namespace%5B0%5D=media-onsite-apis
+    name: K8s CPU/Memory
+    type: dashboard
+
+  - url: https://us3.datadoghq.com/orchestration/overview/namespace?query=kube_namespace%3Amedia-onsite-apis
+    name: Kubernetes Explorer
+    type: dashboard
+
+# Datadog ci/cd pipelines
+ci-pipeline-fingerprints:
+  - G-xOVrEkwDv5
+  - s7DGXrmz-jpX

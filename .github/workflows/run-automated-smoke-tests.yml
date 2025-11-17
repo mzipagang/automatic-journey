@@ -1,0 +1,54 @@
+name: Run smoke tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      postman_collection_id:
+        required: true
+        description: "Select a Postman Collection"
+        type: choice
+        options:
+          - Smoke Test v2
+      postman_environment:
+        required: true
+        description: "Select a Postman Environment"
+        type: choice
+        options:
+          - tst
+          - stg
+
+jobs:
+  run-smoke-tests:
+    name: 🚬 Run Automated Smoke Tests
+    runs-on: self-hosted
+    container: docker-all.artifactory.8451.cloud/qep/api-test-runner:latest
+    steps:
+      - name: Map Collection and Environment Names to UUIDs
+        id: map_ids
+        run: |
+          # Map collection names to UUIDs
+          case "${{ github.event.inputs.postman_collection_id }}" in
+            "Smoke Test v2") echo "COLLECTION_UUID=25510456-e668aac7-3c05-45c1-a738-aefbf558ad3e" ;;
+          esac >> $GITHUB_ENV
+
+          # Map environment names to UUIDs
+          case "${{ github.event.inputs.postman_environment }}" in
+            "tst") echo "ENVIRONMENT_UUID=25510456-41e85e73-7772-4172-bf65-04ddc8b70ce7" ;;
+            "stg") echo "ENVIRONMENT_UUID=25510456-d399ceb3-4327-4f18-8624-833c579ae969" ;;
+          esac >> $GITHUB_ENV
+
+      - name: Run Tests
+        env:
+          POSTMAN_COLLECTION_ID: ${{ env.COLLECTION_UUID }}
+          POSTMAN_ENVIRONMENT_ID: ${{ env.ENVIRONMENT_UUID }}
+          POSTMAN_API_KEY: ${{ secrets.postman_api_key }}
+          API_TESTS_ARGS: "--cli --junit --html"
+          API_TESTS_BUILD_BREAKER_ENABLED: true
+          API_TESTS_ACCOUNT_NAME: ${{ secrets.api_test_account_name }}
+          API_TESTS_ACCOUNT_PASSWORD: ${{ secrets.api_test_account_password }}
+          API_TESTS_CLIENT_ID: ${{ secrets.api_test_client_id }}
+          API_TESTS_CLIENT_SECRET: ${{ secrets.api_test_client_secret }}
+          API_TESTS_IS_AUTOMATION: true
+        run: |
+          echo "Running API tests..."
+          /bin/sh /home/e451/postman-cli/run-postman-cli.sh

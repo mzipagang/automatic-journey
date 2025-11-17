@@ -1,0 +1,9 @@
+templates:
+  sds-api-cookiecutter:
+    repo: "github.com/8451LLC/sds-api-cookiecutter"
+    version: "v0.1.0"
+    args:
+      enable_akv_secrets: true
+      enable_oauth2_proxy: true
+      enable_public_ingress: false
+      framework: FastAPI

@@ -1,0 +1,36 @@
+global:
+  environment:
+    name: tst
+
+reusable-api-chart:
+  ingress:
+    internal:
+      domainName: map-onsite-apis.aks-ur-tst-internal.8451.cloud
+
+  hpa:
+    minReplicas: 1
+    maxReplicas: 2
+
+  externalSecrets:
+    enabled: true
+    azureKeyVaults:
+      primary:
+        vaultUrl: https://kv-8451-map-tst.vault.azure.net/
+      secondary:
+        vaultUrl: https://kv-8451-onsite3p-tst.vault.azure.net/
+
+  extraEnv:
+    - name: "ENV"
+      value: "tst"
+    - name: "REDIS_HOST"
+      value: "map-redis-cache-tst.redis.cache.windows.net"
+    - name: "REDIS_PORT"
+      value: "6380"
+    - name: "REDIS_DB"
+      value: "1"
+    - name: "REDIS_SSL"
+      value: "true"
+    - name: "REDIS_SOCKET_TIMEOUT"
+      value: "10"
+    - name: "REDIS_SOCKET_CONNECT_TIMEOUT"
+      value: "10"

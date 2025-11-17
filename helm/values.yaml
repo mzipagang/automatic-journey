@@ -1,0 +1,103 @@
+global:
+  commonLabels:
+    app.kubernetes.io/owner: "cesar.cavazos_at_8451.com"
+    custom.8451.com/profit_stream: "kpm"
+    custom.8451.com/program: "media"
+    custom.8451.com/value_stream: "Commercial Experiences"
+    custom.8451.com/business_domain: "self_service_onsite"
+    custom.8451.com/product: "kroger_ad_platform"
+    custom.8451.com/capability: "onsite_pla_api"
+    custom.8451.com/team: "Self Service Onsite"
+    custom.8451.com/contact_product: "cesar.cavazos_at_8451.com"
+    custom.8451.com/contact_team: "cesar.cavazos_at_8451.com"
+    custom.8451.com/contact_technical: "cesar.cavazos_at_8451.com"
+  environment:
+    name: dev
+
+reusable-api-chart:
+
+  helmTests:
+    enabled: false # Required when deploying the chart via Harness (specifically needed for blue-green deployments)
+
+  image:
+    repository: docker-all.artifactory.8451.cloud/kroger_ad_platform/onsite_pla_api/media_onsite_apis
+    tag: <overridden-by-pipeline>
+
+  serviceAnnotations:
+    harness.io/primary-service: "true"
+
+  replicas: 1
+  resources:
+    requests:
+      cpu: "1000m"
+      memory: 1Gi
+    limits:
+      cpu: "2000m"
+      memory: 2Gi
+
+  extraEnv:
+  - name: SKIP_PATHS
+    value: /api/health
+  nodeSelector:
+    workload: default
+  readinessProbe:
+    httpGet:
+      path: /api/health/readiness
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 30
+    failureThreshold: 5
+  livenessProbe:
+    httpGet:
+      path: /api/health/liveness
+      port: 8080
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 30
+
+  datadog:
+    enableApmFeatures: true
+    # Datadog profiling is an advanced feature that allows you to continuously
+    # sample CPU, I/O, Memory, GC, Locks, and more, broken down by method name,
+    # class name, and line number. It can help to identify performance
+    # bottlenecks, memory leaks, and other issues.
+    # ref: https://www.datadoghq.com/product/code-profiling/
+    profiling:
+      # NOTE: When this feature is enabled, your application will incur both
+      # additional costs and a small performance penalty (typically <5%). For
+      # these reasons, you may want to enable profiling only when necessary,
+      # and/or in specific environments.
+      enabled: false
+
+  serviceAccount:
+    create: true
+    azureWorkloadIdentity:
+      enabled: true
+
+  externalSecrets:
+    enabled: true
+    azureKeyVaults:
+      primary:
+        kubernetesSecrets:
+          keys:
+            data:
+              REDIS_PRIMARY_ACCESS_KEY: map-redis-primary-access-key
+      secondary:
+        kubernetesSecrets:
+          keys:
+            data:
+              HARNESS_API_KEY: harness-api-key
+
+  ingress:
+    internal:
+      auth:
+        enabled: false
+
+  hpa:
+    enabled: true
+    minReplicas: 6
+    maxReplicas: 25
+
+  ha:
+    enabled: true

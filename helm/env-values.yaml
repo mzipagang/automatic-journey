@@ -1,0 +1,21 @@
+# DO NOT MODIFY THIS FILE
+# For more information on the purpose of this file, please visit the link below:
+# https://github.com/8451LLC/sds-reusable-workflows/blob/main/.github/workflows/helm-package-and-publish-README.md#environment-variable-substitution-and-merging
+# This file will replace values during the GitHub Actions "Helm Package and Publish" workflow
+reusable-api-chart:
+  image:
+    tag: "${BUILD_VERSION}"
+
+global:
+  commonLabels:
+    app.kubernetes.io/owner: "${K8S_LABEL_CONTACT_TEAM}"
+    custom.8451.com/profit_stream: "${K8S_LABEL_PROFIT_STREAM}"
+    custom.8451.com/program: "${K8S_LABEL_PROGRAM}"
+    custom.8451.com/value_stream: "${K8S_LABEL_VALUE_STREAM}"
+    custom.8451.com/business_domain: "${K8S_LABEL_BUSINESS_DOMAIN}"
+    custom.8451.com/product: "${K8S_LABEL_PRODUCT}"
+    custom.8451.com/capability: "${K8S_LABEL_CAPABILITY}"
+    custom.8451.com/team: "${K8S_LABEL_TEAM}"
+    custom.8451.com/contact_product: "${K8S_LABEL_CONTACT_PRODUCT}"
+    custom.8451.com/contact_team: "${K8S_LABEL_CONTACT_TEAM}"
+    custom.8451.com/contact_technical: "${K8S_LABEL_CONTACT_TECHNICAL}"

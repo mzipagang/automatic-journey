@@ -1,0 +1,1941 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Media Management Activation API",
+    "description": "The Media Management Activations API",
+    "version": "2"
+  },
+  "servers": [
+    {
+      "url": "/api/v2"
+    }
+  ],
+  "paths": {
+    "/activation": {
+      "get": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activations Get Endpoint",
+        "description": "Return a list of all activations",
+        "operationId": "Activations_GET_Endpoint_activation_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ids"
+            }
+          },
+          {
+            "name": "creative_group",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Creative Group"
+            }
+          },
+          {
+            "name": "koddi_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Koddi Id"
+            }
+          },
+          {
+            "name": "campaign_ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Campaign Ids"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KrogerResponse_List_Activation__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Post Endpoint",
+        "description": "Adds an activation to the database",
+        "operationId": "Activation_POST_Endpoint_activation_post",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivationCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KrogerResponse_Activation_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Patch Endpoint",
+        "description": "Partially update an activation in the database",
+        "operationId": "Activation_Patch_Endpoint_activation__activation_id__patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KrogerResponse_Activation_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Get Endpoint",
+        "description": "Get a specific activation from the database",
+        "operationId": "Activation_GET_Endpoint_activation__activation_id__get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KrogerResponse_Activation_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Soft Delete Endpoint",
+        "description": "Soft delete a specific activation from the database",
+        "operationId": "Activation_SOFT_DELETE_Endpoint_activation__activation_id__delete",
+        "deprecated": true,
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/validate": {
+      "get": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Validation Endpoint",
+        "description": "Validate a specific activation",
+        "operationId": "Activation_Validation_Endpoint_activation__activation_id__validate_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Validation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/validate_with_changes": {
+      "post": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Validation Endpoint",
+        "description": "Validate a specific activation with changes but ignore required fields",
+        "operationId": "Activation_Validation_Endpoint_activation__activation_id__validate_with_changes_post",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          },
+          {
+            "name": "disable_validation_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [],
+              "title": "Disable Validation Type"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Validation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/validate_by_pages": {
+      "get": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Validation Endpoint",
+        "description": "Validate a specific activation",
+        "operationId": "Activation_Validation_Endpoint_activation__activation_id__validate_by_pages_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowValidation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/remaining_budget": {
+      "get": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Remaining Budget Endpoint",
+        "description": "Get the remaining budget for an activation",
+        "operationId": "Activation_Remaining_Budget_Endpoint_activation__activation_id__remaining_budget_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemainingBudgetValidation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/budget_info": {
+      "get": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Budget Info Endpoint",
+        "description": "Get budget-related information for an activation",
+        "operationId": "Activation_Budget_Info_Endpoint_activation__activation_id__budget_info_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          },
+          {
+            "name": "experience",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Experience"
+            }
+          },
+          {
+            "name": "ad_group_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ad Group Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetInfo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/pause": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Pause Endpoint",
+        "description": "Pause a specific activation",
+        "operationId": "Activation_Pause_Endpoint_activation__activation_id__pause_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/unpause": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Unpause Endpoint",
+        "description": "Unpause a specific activation",
+        "operationId": "Activation_Unpause_Endpoint_activation__activation_id__unpause_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/submit": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Submit Endpoint",
+        "description": "Moves an Activation into under review",
+        "operationId": "Activation_Submit_Endpoint_activation__activation_id__submit_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/activate": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Activate Endpoint",
+        "description": "Activate a specific activation",
+        "operationId": "Activation_Activate_Endpoint_activation__activation_id__activate_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/end": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation End Endpoint",
+        "description": "End a specific activation",
+        "operationId": "Activation_end_Endpoint_activation__activation_id__end_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/approve": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Approve Endpoint",
+        "description": "Approve a specific activation",
+        "operationId": "Activation_Approve_Endpoint_activation__activation_id__approve_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/unapprove": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Unapprove Endpoint",
+        "description": "Unapprove a specific activation",
+        "operationId": "Activation_Unapprove_Endpoint_activation__activation_id__unapprove_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/publish": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Publish Endpoint",
+        "description": "Publish an activation in the database to downstream systems",
+        "operationId": "Activation_Publish_Endpoint_activation__activation_id__publish_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": [],
+                "title": "Published Fields"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activation/{activation_id}/publish_result": {
+      "patch": {
+        "tags": [
+          "Activation Endpoints"
+        ],
+        "summary": "Activation Publish Endpoint",
+        "description": "Update an activation in the database with result from downstream publishing systems",
+        "operationId": "Activation_Publish_Endpoint_activation__activation_id__publish_result_patch",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "activation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Activation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishResult"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activation"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/campaign/{campaign_id}/current_max_spend": {
+      "get": {
+        "tags": [
+          "Campaign Endpoints"
+        ],
+        "summary": "Campaign Remaining Budget Endpoint",
+        "description": "Get the current max spend for a campaign",
+        "operationId": "Campaign_Remaining_Budget_Endpoint_campaign__campaign_id__current_max_spend_get",
+        "security": [
+          {
+            "OAuth2AuthorizationCodeBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "campaign_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Campaign Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignBudgetResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Activation": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "channel_config": {
+            "$ref": "#/components/schemas/ChannelConfig"
+          },
+          "campaign_id": {
+            "type": "string",
+            "title": "Campaign Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ActivationStatus"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/ActivationMetaData"
+          },
+          "channel_data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel Data",
+            "default": {}
+          },
+          "published_data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published Data",
+            "default": {}
+          },
+          "unpublished_data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unpublished Data",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "channel_config",
+          "campaign_id",
+          "status",
+          "metadata"
+        ],
+        "title": "Activation",
+        "channel_data": {},
+        "published_changes": {},
+        "unpublished_changes": {}
+      },
+      "ActivationCreateRequest": {
+        "properties": {
+          "channel_data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel Data",
+            "default": {}
+          },
+          "channel_config": {
+            "$ref": "#/components/schemas/ChannelConfig"
+          },
+          "campaign_id": {
+            "type": "string",
+            "title": "Campaign Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "channel_config",
+          "campaign_id"
+        ],
+        "title": "ActivationCreateRequest",
+        "channel_data": {}
+      },
+      "ActivationExternalId": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "partner": {
+            "$ref": "#/components/schemas/ActivationExternalIdPartners"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "partner"
+        ],
+        "title": "ActivationExternalId"
+      },
+      "ActivationExternalIdPartners": {
+        "type": "string",
+        "const": "KODDI",
+        "title": "ActivationExternalIdPartners"
+      },
+      "ActivationMetaData": {
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By"
+          },
+          "last_modified": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Modified"
+          },
+          "deleted": {
+            "type": "boolean",
+            "title": "Deleted",
+            "default": false
+          },
+          "approved": {
+            "type": "boolean",
+            "title": "Approved",
+            "default": false
+          },
+          "externalIDs": {
+            "type": "object",
+            "title": "Externalids",
+            "default": {}
+          },
+          "short_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Short Id"
+          },
+          "is_locked": {
+            "type": "boolean",
+            "title": "Is Locked",
+            "default": false
+          },
+          "last_publish_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PublishResultEnum"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_published": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Published"
+          },
+          "last_published_fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Published Fields",
+            "default": []
+          },
+          "last_publish_system_errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Last Publish System Errors",
+            "default": []
+          },
+          "last_publish_field_errors": {
+            "items": {
+              "$ref": "#/components/schemas/PublishErrorByField"
+            },
+            "type": "array",
+            "title": "Last Publish Field Errors",
+            "default": []
+          },
+          "potential_status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ActivationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "created_at",
+          "created_by"
+        ],
+        "title": "ActivationMetaData"
+      },
+      "ActivationRequest": {
+        "properties": {
+          "channel_data": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel Data",
+            "default": {}
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ActivationRequest",
+        "channel_data": {}
+      },
+      "ActivationStatus": {
+        "type": "string",
+        "enum": [
+          "Draft",
+          "Under Review",
+          "Scheduled",
+          "Paused",
+          "Active",
+          "Ended",
+          "Failed"
+        ],
+        "title": "ActivationStatus"
+      },
+      "BudgetInfo": {
+        "properties": {
+          "remaining_budget": {
+            "type": "number",
+            "title": "Remaining Budget"
+          },
+          "suggested_budget": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Budget"
+          },
+          "projections": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BudgetProjections"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "remaining_budget"
+        ],
+        "title": "BudgetInfo"
+      },
+      "BudgetProjection": {
+        "properties": {
+          "budget_amount": {
+            "type": "number",
+            "title": "Budget Amount"
+          },
+          "projected_clicks": {
+            "type": "integer",
+            "title": "Projected Clicks"
+          },
+          "projected_impressions": {
+            "type": "integer",
+            "title": "Projected Impressions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "budget_amount",
+          "projected_clicks",
+          "projected_impressions"
+        ],
+        "title": "BudgetProjection"
+      },
+      "BudgetProjections": {
+        "properties": {
+          "current_budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BudgetProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "suggested_budgets": {
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/BudgetProjection"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Suggested Budgets"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_budget",
+          "suggested_budgets"
+        ],
+        "title": "BudgetProjections"
+      },
+      "CampaignBudgetResponse": {
+        "properties": {
+          "current_max_spend": {
+            "type": "number",
+            "title": "Current Max Spend"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_max_spend"
+        ],
+        "title": "CampaignBudgetResponse"
+      },
+      "ChannelConfig": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "version"
+        ],
+        "title": "ChannelConfig"
+      },
+      "EntityErrors": {
+        "properties": {
+          "was_successful": {
+            "$ref": "#/components/schemas/PublishResultEnum"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "system_errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "System Errors",
+            "default": []
+          },
+          "field_errors": {
+            "items": {
+              "$ref": "#/components/schemas/PublishErrorByField"
+            },
+            "type": "array",
+            "title": "Field Errors",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "was_successful",
+          "timestamp"
+        ],
+        "title": "EntityErrors"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "KrogerError": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "datetime": {
+            "$ref": "#/components/schemas/KrogerErrrorDatetime"
+          },
+          "field_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Name"
+          },
+          "identifier": {
+            "type": "string",
+            "title": "Identifier"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "reason",
+          "datetime",
+          "identifier"
+        ],
+        "title": "KrogerError"
+      },
+      "KrogerErrrorDatetime": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Value"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "timezone"
+        ],
+        "title": "KrogerErrrorDatetime"
+      },
+      "KrogerResponse_Activation_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Activation"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/KrogerError"
+            },
+            "type": "array",
+            "title": "Errors",
+            "default": []
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/KrogerError"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "default": []
+          },
+          "meta": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta"
+          },
+          "included": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Included"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "KrogerResponse[Activation]"
+      },
+      "KrogerResponse_List_Activation__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/Activation"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/KrogerError"
+            },
+            "type": "array",
+            "title": "Errors",
+            "default": []
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/KrogerError"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "default": []
+          },
+          "meta": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meta"
+          },
+          "included": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Included"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "KrogerResponse[List[Activation]]"
+      },
+      "PublishErrorByField": {
+        "properties": {
+          "field_name": {
+            "type": "string",
+            "title": "Field Name"
+          },
+          "error_message": {
+            "type": "string",
+            "title": "Error Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "field_name",
+          "error_message"
+        ],
+        "title": "PublishErrorByField"
+      },
+      "PublishResult": {
+        "properties": {
+          "was_successful": {
+            "$ref": "#/components/schemas/PublishResultEnum"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "system_errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "System Errors",
+            "default": []
+          },
+          "field_errors": {
+            "items": {
+              "$ref": "#/components/schemas/PublishErrorByField"
+            },
+            "type": "array",
+            "title": "Field Errors",
+            "default": []
+          },
+          "external_id": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ActivationExternalId"
+              }
+            ]
+          },
+          "entities": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/EntityErrors"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entities"
+          }
+        },
+        "type": "object",
+        "required": [
+          "was_successful",
+          "timestamp"
+        ],
+        "title": "PublishResult"
+      },
+      "PublishResultEnum": {
+        "type": "string",
+        "enum": [
+          "SUCCESS",
+          "FAILURE"
+        ],
+        "title": "PublishResultEnum"
+      },
+      "RemainingBudgetValidation": {
+        "properties": {
+          "remainingBudgetAmount": {
+            "type": "number",
+            "title": "Remainingbudgetamount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "remainingBudgetAmount"
+        ],
+        "title": "RemainingBudgetValidation"
+      },
+      "Validation": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid",
+          "errors"
+        ],
+        "title": "Validation"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WorkflowMessage": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "navigationId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Navigationid"
+          },
+          "targetId": {
+            "type": "string",
+            "title": "Targetid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message",
+          "targetId"
+        ],
+        "title": "WorkflowMessage"
+      },
+      "WorkflowValidation": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/WorkflowValidationStatus"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/WorkflowMessage"
+            },
+            "type": "array",
+            "title": "Messages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "messages"
+        ],
+        "title": "WorkflowValidation"
+      },
+      "WorkflowValidationStatus": {
+        "type": "string",
+        "enum": [
+          "valid",
+          "invalid"
+        ],
+        "title": "WorkflowValidationStatus"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2AuthorizationCodeBearer": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "scopes": {},
+            "authorizationUrl": "auth",
+            "tokenUrl": "token"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,143 @@
+version: 2
+registries:
+
+  ## Github actions and reusable workflows indexed through our 8451 organization.
+  github-8451LLC:
+    type: git
+    url: https://github.com
+    username: x-access-token
+    password: ${{ secrets.SHARED_ACTIONS_SVC_ACCT_TOKEN }}
+
+  ## All non-github dependencies are proxied through Artifactory.
+  pip-artifactory:
+    type: python-index
+    url: https://artifactory.8451.cloud/artifactory/api/pypi/python-remote/simple
+    username: ${{ secrets.CLOUD_ARTIFACTORY_USERNAME }}
+    password: ${{ secrets.CLOUD_ARTIFACTORY_PASSWORD }}
+    replaces-base: true
+
+  docker-artifactory:
+    type: docker-registry
+    url: https://docker-all.artifactory.8451.cloud
+    username: ${{ secrets.CLOUD_ARTIFACTORY_USERNAME }}
+    password: ${{ secrets.CLOUD_ARTIFACTORY_PASSWORD }}
+    replaces-base: true
+
+updates:
+
+  ## Github Actions and Reusable Workflows.
+- package-ecosystem: github-actions
+    ##
+    ## Required config
+    ##
+  directory: /
+    ## Correlates with the pip-artifactory registry defined above.
+  registries:
+  - github-8451LLC
+    ## Choices are "daily", "weekly", or "monthly"
+  schedule:
+    interval: daily
+    ##
+    ## Optional config
+    ##
+    ## Add reviewers to the PRs created by dependabot.
+    ## Will default to CODEOWNERS if available and no reviewers are provided here.
+    ## Will be pre-filled with the top 5 contributors if no CODEOWNERS file is available.
+    ## Ex.
+    ##  reviewers:
+    ##  - "reviewer"
+  reviewers:
+  - cesarcavazos-8451
+  - venkataanne-8451
+  - carolinalopez-8451
+  - josegaleano-8451
+  - sasiteluk-8451
+  - robertfuller-8451
+  - christopherschell-8451
+  - markzipagangcontractor-8451
+  - michaelbryant-8451
+  commit-message:
+    prefix: '[github-actions] '
+    include: scope
+    ## Add labels to the PRs created by dependabot.
+  labels:
+  - dependencies
+
+- package-ecosystem: pip
+    ##
+    ## Required config
+    ##
+  directory: /
+    ## Correlates with the pip-artifactory registry defined above.
+  registries:
+  - pip-artifactory
+    ## @see https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#insecure-external-code-execution
+  insecure-external-code-execution: allow
+    ## Choices are "daily", "weekly", or "monthly"
+  schedule:
+    interval: daily
+    ##
+    ## Optional config
+    ##
+    ## Add reviewers to the PRs created by dependabot.
+    ## Will default to CODEOWNERS if available and no reviewers are provided here.
+    ## Will be pre-filled with the top 5 contributors if no CODEOWNERS file is available.
+    ## Ex.
+    ##  reviewers:
+    ##  - "reviewer"
+  reviewers:
+  - cesarcavazos-8451
+  - venkataanne-8451
+  - carolinalopez-8451
+  - josegaleano-8451
+  - sasiteluk-8451
+  - robertfuller-8451
+  - christopherschell-8451
+  - markzipagangcontractor-8451
+  - michaelbryant-8451
+  commit-message:
+    prefix: '[pip] '
+    include: scope
+    ## Add labels to the PRs created by dependabot.
+  labels:
+  - dependencies
+
+- package-ecosystem: docker
+    ##
+    ## Required config
+    ##
+    ## If this repository generates images, you may need to specify an output path.
+    ## Ex. /output/alpine-3.18
+  directory: /
+    ## Correlates with docker-artifactory registry above.
+  registries:
+  - docker-artifactory
+    ## Choices are "daily", "weekly", or "monthly"
+  schedule:
+    interval: daily
+    ##
+    ## Optional config
+    ##
+    ## Add reviewers to the PRs created by dependabot.
+    ## Will default to CODEOWNERS if available and no reviewers are provided here.
+    ## Will be pre-filled with the top 5 contributors if no CODEOWNERS file is available.
+    ## Ex.
+    ##  reviewers:
+    ##  - "reviewer"
+  reviewers:
+  - cesarcavazos-8451
+  - venkataanne-8451
+  - carolinalopez-8451
+  - josegaleano-8451
+  - sasiteluk-8451
+  - robertfuller-8451
+  - christopherschell-8451
+  - markzipagangcontractor-8451
+  - michaelbryant-8451
+  commit-message:
+    prefix: '[docker] '
+    include: scope
+    ## Add labels to the PRs created by dependabot.
+  labels:
+  - dependencies
+  

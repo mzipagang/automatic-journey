@@ -1,0 +1,32 @@
+global:
+  environment:
+    name: prd
+
+reusable-api-chart:
+  ingress:
+    internal:
+      domainName: map-onsite-apis.aks-ur-prd-internal.8451.cloud
+
+  externalSecrets:
+    enabled: true
+    azureKeyVaults:
+      primary:
+        vaultUrl: https://kv-8451-map-prd.vault.azure.net/
+      secondary:
+        vaultUrl: https://kv-8451-onsite3p-prd.vault.azure.net/
+
+  extraEnv:
+    - name: "ENV"
+      value: "prd"
+    - name: "REDIS_HOST"
+      value: "map-redis-cache-prd.redis.cache.windows.net"
+    - name: "REDIS_PORT"
+      value: "6380"
+    - name: "REDIS_DB"
+      value: "1"
+    - name: "REDIS_SSL"
+      value: "true"
+    - name: "REDIS_SOCKET_TIMEOUT"
+      value: "10"
+    - name: "REDIS_SOCKET_CONNECT_TIMEOUT"
+      value: "10"

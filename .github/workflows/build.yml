@@ -1,0 +1,156 @@
+name: Build and Publish Artifacts
+
+# Each of these should be changed to match your project
+env:
+  # Always change these when starting a project
+
+  # Helm Release Name
+  RELEASE_NAME: 'map-onsite-apis'
+  # Name of python and docker artifact (name in artifactory). Should also be the name of your chart in Chart.yaml
+  ARTIFACT_BUILD_NAME: 'media-onsite-apis'
+  # Helm Chart Directory
+  HELM_DIRECTORY: helm
+
+  # Optional changes depending on your project's needs
+
+  # Artifactory docker registry.
+  REMOTE_DOCKER_REGISTRY_URL: 'docker-all.artifactory.8451.cloud'
+  # Target Helm Repository
+  TARGET_HELM_REPO: 'helm-dev'
+  # Source Directory (many times module name)
+  PYTHON_SOURCE_DIR: 'app'
+  # Python Test Directory
+  PYTHON_TEST_DIR: 'tests'
+
+# Controls when the workflow will run
+on: # By default, we run on git push and allow for manual runs.
+
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version-part:
+        description: "Version part to increment"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  project-metadata:
+    name: 📘 Collect Project Metadata
+    uses: 8451LLC/sds-reusable-workflows/.github/workflows/metadata-transform.yml@v2
+
+  semantic-version:
+    name: 🆔 Create Semantic Version
+    uses: 8451LLC/sds-reusable-workflows/.github/workflows/bump-semantic-version-component.yml@v2
+    with:
+      release-branches: main,release
+      bump-part: ${{ github.event.inputs.version-part || 'patch' }}
+    secrets: inherit
+
+  prepare-workflow-inputs:
+    needs:
+      - semantic-version
+      - project-metadata
+    name: ♨️ Parse Values for Reusable Workflows
+    runs-on: self-hosted
+    outputs:
+      release_name: ${{ env.RELEASE_NAME }}
+      image-name: ${{ env.REMOTE_DOCKER_REGISTRY_URL }}/${{ needs.project-metadata.outputs.docker-repository-path }}
+      image-tag: ${{ needs.semantic-version.outputs.semantic-version }}
+      artifact_build_name: ${{ env.ARTIFACT_BUILD_NAME }}
+      remote_docker_registry_url: ${{ env.REMOTE_DOCKER_REGISTRY_URL }}
+      source_dir: ${{ env.PYTHON_SOURCE_DIR }}
+      test_dir: ${{ env.PYTHON_TEST_DIR }}
+      helm_dir: ${{ env.HELM_DIRECTORY }}
+      target_helm_repo: ${{ env.TARGET_HELM_REPO }}
+    steps:
+      - run: echo ""
+
+  python-build-and-publish:
+    name: 🐸 Build and Publish to Artifactory
+    needs:
+      - prepare-workflow-inputs
+      - semantic-version
+      - project-metadata
+    uses: ./.github/workflows/poetry-build-and-publish.yml
+    with:
+      project-source-location: ${{ needs.prepare-workflow-inputs.outputs.source_dir }} # Change this to your source directory
+      artifact-build-name: ${{ needs.prepare-workflow-inputs.outputs.artifact_build_name }}
+      artifact-build-number: ${{ needs.semantic-version.outputs.semantic-version }}
+      artifact-module-name: ${{ needs.project-metadata.outputs.component }}
+      sonarqube-project-key: ${{ needs.prepare-workflow-inputs.outputs.artifact_build_name }}
+      sonarqube-source-dir: ${{ needs.prepare-workflow-inputs.outputs.source_dir }} # Remember to change this to your source directory.
+      sonarqube-test-dir: ${{ needs.prepare-workflow-inputs.outputs.test_dir }} # Change this to your test directory.
+      sonarqube-coverage-exclusions: "**/*_test.py," # This should follow your unit/integration test format.
+    secrets:
+      artifactory-username: ${{ secrets.CLOUD_ARTIFACTORY_USERNAME }}
+      artifactory-password: ${{ secrets.CLOUD_ARTIFACTORY_PASSWORD }}
+      SONARQUBE_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+
+  docker-build-and-publish:
+    needs:
+      - prepare-workflow-inputs
+      - semantic-version
+      - python-build-and-publish
+    name: 🐳 Build and Publish Docker Image
+    uses: 8451LLC/sds-reusable-workflows/.github/workflows/docker-build-and-publish-component.yml@v2
+    with:
+      semantic-version: ${{ needs.semantic-version.outputs.semantic-version }}
+      custom-build-args: |
+        ARTIFACTORY_URL: ${{ needs.prepare-workflow-inputs.outputs.jfrog_server_url }}/artifactory/api/pypi/${{ needs.prepare-workflow-inputs.outputs.pip_artifactory }}/simple
+        PACKAGE_VERSION: ${{ needs.semantic-version.outputs.semantic-version }}
+    secrets: inherit
+
+  helm-package-and-publish:
+    name: 📦 Package and Publish Helm Chart
+    uses: 8451LLC/sds-reusable-workflows/.github/workflows/helm-package-and-publish-component.yml@v2
+    needs:
+      - prepare-workflow-inputs
+      - semantic-version
+      - python-build-and-publish
+    with:
+      semantic-version: ${{ needs.semantic-version.outputs.semantic-version }}
+      helm-chart-name: ${{ needs.prepare-workflow-inputs.outputs.artifact_build_name }} # i.e. name of chart as defined in Chart.yaml
+      helm-chart-path: ${{ needs.prepare-workflow-inputs.outputs.helm_dir }}/ # e.g If your helm chart is under a directory 'helm' then the path is 'helm/<chart_name>'
+    secrets: inherit
+
+
+  trigger-harness-deploy:
+    if: github.ref_name == 'main'
+    name: ⚙️ Trigger Harness Deploy to AKS
+    needs:
+      - prepare-workflow-inputs
+      - semantic-version
+      - docker-build-and-publish
+      - python-build-and-publish
+      - helm-package-and-publish
+    uses: 8451LLC/sds-reusable-workflows/.github/workflows/trigger-deployment-component.yml@v2
+    with:
+      workflow-name: harness_deploy.yaml
+      workflow-inputs: |
+        helm-chart-version: ${{ needs.semantic-version.outputs.semantic-version }}
+        environments-to-deploy: "dev,tst"
+        approval_group: "gAZUCMOwnOprAdExpProdApprovers"
+    secrets: inherit
+
+  tag-repository:
+    needs:
+      - semantic-version
+      - trigger-harness-deploy
+    name: 🏷 Tag Repository
+    # if: ${{ github.ref == 'refs/heads/main' }}
+    uses: 8451LLC/sds-reusable-workflows/.github/workflows/tag-repository-component.yml@v2
+    with:
+      tag: ${{ needs.semantic-version.outputs.semantic-version }}
+    secrets: inherit

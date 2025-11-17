@@ -1,0 +1,485 @@
+name: Build and Publish Python Wheel to Artifactory
+
+on:
+  workflow_call:
+    inputs:
+      # ---------- Project related parameters ----------
+      project-dependencies-file:
+        description: "Path to the file defining all of your project's dependencies (default: requirements.txt)"
+        type: string
+        required: false
+        default: "requirements.txt"
+      project-source-location:
+        description: "Name of the source directory (i.e. src/)"
+        type: string
+        required: true
+      # ------- OPTIONAL: Test Image Name -------
+      testing-image:
+        description: >
+          Name of the docker image to be used to run your project's tests on
+        type: string
+        required: false
+        default: docker-all.artifactory.8451.cloud/core-images/python:3.12-build-gha
+      # ------- OPTIONAL: Build Image Name -------
+      build-image:
+        required: false
+        default: docker-all.artifactory.8451.cloud/core-images/python:3.12-build-gha
+        type: string
+        description: >
+          Name of the docker image to run the build job on
+      # ---------- OPTIONAL: wheel related params ----------
+      wheel-prerelease-suffix:
+        description: "Prerelease suffix to be appended to the semantic version of the wheel artifact. (default: dev, i.e. 0.0.1.dev0)"
+        type: string
+        default: "dev"
+        required: false
+      # ---------- Artifact / Build related parameters ----------
+      artifact-build-name:
+        description: "Name of the Build Artifact that is to be built and deployed (i.e. my-package-name)"
+        type: string
+        required: true
+      artifact-build-number:
+        description: "Associated identifier as a semantic version number for the build artifact (i.e. 0.0.1)"
+        type: string
+        required: true
+      # OPTIONAL: python module name, note that the suffix includes a hyphen.
+      artifact-module-name:
+        description: "Optional parameter, that defines a module name for the build artifact."
+        type: string
+        required: false
+        default: ${{ null }}
+      # OPTIONAL: suffix to be applied to the build number
+      artifact-build-number-suffix:
+        description: "OPTIONAL parameter, suffix added to the end of the build number to uniquely identify the build. (default: -python, <BUILD-NUMBER>-python)"
+        type: string
+        required: false
+        default: "-python"
+      artifactory-upload-destination:
+        description: "Targeted python repository to upload the build artifacts to (default: python-dev-local)."
+        type: string
+        required: false
+        default: "python-dev-local"
+      # ---------- Sonarqube related params ----------
+      sonarqube-project-name:
+        description: "Display name of the project in the Sonarqube UI"
+        type: string
+        required: false
+      sonarqube-project-key:
+        description: "The unique identifier for the project in Sonarqube. Allowed characters are: letters, numbers, '-', '_', '.' and ':', with at least one non-digit."
+        type: string
+        required: true
+      sonarqube-project-version:
+        description: "project version to be scanned (i.e. 0.0.1)"
+        type: string
+        required: false
+      sonarqube-base-dir:
+        description: "your project's base directory"
+        type: string
+        required: false
+        default: ${{ null }}
+      sonarqube-source-dir:
+        description: "your project's source directory (i.e. src/)"
+        type: string
+        required: true
+      sonarqube-test-dir:
+        description: "your project's testing directory (i.e. test/, tests/)"
+        type: string
+        required: true
+      sonarqube-exclusions:
+        description: "List of excluded directories and files as a comma delimited string (i.e. 'system/**, test/**')"
+        type: string
+        required: false
+        default: ""
+      sonarqube-coverage-exclusions:
+        description: "List of directories and files excluded from the coverage report as a comma delimited string (i.e. **/*_test.py,**/htmlcov)"
+        type: string
+        required: false
+        default: ${{ null }}
+      # ---------- Pip Caching Params ----------
+      use-pip-caching:
+        description: "Flag to determine if caching should be enabled to potentially optimize dependency management. (default: true)"
+        type: boolean
+        default: true
+        required: false
+      cache-key-hash-file:
+        description: "File to be used as a cache key. Changes to this file will trigger new cache writes. (default: requirements.txt)"
+        type: string
+        required: false
+        default: "requirements.txt"
+      # ---------- OPTIONAL: jfrog pip repo ----------
+      pip-artifactory-repo:
+        description: "Artifactory repo for pip (default: python-all)"
+        type: string
+        required: false
+        default: python-all
+      # ---------- OPTIONAL: JFrog config parameters ----------
+      artifactory-url:
+        description: "URL to artifactory instance (default: https://artifactory.8451.cloud/artifactory)"
+        type: string
+        required: false
+        default: https://artifactory.8451.cloud/artifactory
+      jfrog-server-url:
+        description: "URL to the JFrog Server (default: https://artifactory.8451.cloud)"
+        type: string
+        required: false
+        default: "https://artifactory.8451.cloud"
+      # ---------- OPTIONAL: Metadata file related params ----------
+      metadata-file-path:
+        required: false
+        type: string
+        default: ".8451/metadata.yml"
+        description: "Path to the metadata file"
+      # ---------- OPTIONAL: XRay Fail Build Flag ----------
+      fail-build-flag:
+        required: false
+        type: boolean
+        default: false
+        description: "Flag used to fail the build if xray scan fails (default: FALSE, will NOT fail the job/workflow)"
+      # ---------- OPTIONAL: required deployment artifacts (that were pre-staged in a previous job/step as GH artifacts to be downloaded) ----------
+      staged-artifact-name:
+        description: Name of the required pre-staged GitHub artifacts
+        required: false
+        type: string
+      staged-artifact-download-destination:
+        description: "Path to download the staged artifact to (i.e. /path/to/staged-artifact/ default: '.')"
+        required: false
+        type: string
+        default: "."
+      editable-install:
+        description: "Required for pytest to work on src layout projects like the ones cookiecutter makes"
+        required: false
+        type: boolean
+        default: false
+      tests-extras-name:
+        description: "Convention used for tests requirements E.g., tests.  Only has an effect if editable-install is true."
+        required: false
+        type: string
+        default: "tests"
+    outputs:
+      artifact-full-build-number:
+        description: "The unique identifier of the build event that publish the wheel to Artifactory (i.e. 0.0.1-python)"
+        value: ${{ jobs.set-full-build-number.outputs.artifact-full-build-number }}
+    secrets:
+      artifactory-username:
+        required: true
+        description: "Service account's username to do a login for artifactory."
+      artifactory-password:
+        required: true
+        description: "Service account's password to do a login for artifactory."
+      SONARQUBE_TOKEN:
+        required: true
+        description: "Sonarqube Token used to authenticate requests to trigger a Scan"
+
+jobs:
+  # ---------------------------------------------------------------------------------
+  # Generate a build number with a unique suffix for the build (in Artifactory).
+  #
+  # Please note,
+  # This job alleviates possible naming/number collisions in scenarios where
+  # there are multiple artifacts/builds with the same build name (in Artifactory).
+  # (i.e. workflows that have a java/python build combined with docker and/or helm builds that share the same build name)
+  #
+  set-full-build-number:
+    name: 💯 Set Artifactory Build Number
+    runs-on: self-hosted
+    outputs:
+      artifact-full-build-number: ${{ steps.set-full-build-number-with-suffix.outputs.artifact-build-number-with-suffix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Please note:
+      # The artifact suffix includes the hyphen '-', so the full build number will be formatted to be <build-number>-suffix
+      - name: Set Build Number w/ Suffix
+        id: set-full-build-number-with-suffix
+        env:
+          UNIQUE_ARTIFACT_BUILD_NUMBER: "${{ inputs.artifact-build-number }}-${{ github.run_id }}-${{ github.run_attempt }}${{ inputs.artifact-build-number-suffix }}"
+        run: |
+          echo "::set-output name=artifact-build-number-with-suffix::${{ env.UNIQUE_ARTIFACT_BUILD_NUMBER }}"
+
+  # ---------------------------------------------------------------------------------
+  # Execute the project's tests and report the coverage results as check suites.
+  # This generates a generic overview as a summary and a more detailed report.
+  #
+  # Please note:
+  # - this uses caching of the pip directory to help speed up dependency installs
+  # - this uses pytest and an extension pytest-cov to run the tests and generate a coverage report as XML
+  #
+  test-with-coverage:
+    needs:
+      - set-full-build-number
+    outputs:
+      code-coverage-artifact-hash: ${{ steps.set-code-coverage-artifact-hash.outputs.code-coverage-artifact-hash }}
+    name: 🧪 Run Tests with Coverage
+    runs-on: self-hosted
+    container: ${{ inputs.testing-image }}
+    services:
+      redis:
+        image: docker-all.artifactory.8451.cloud/redis:6.0.7
+        credentials:
+          username: ${{ secrets.artifactory-username }}
+          password: ${{ secrets.artifactory-password }}
+        ports:
+          - '6379:6379'
+        volumes:
+          - redis_volume_data:/data
+      redis_insights:
+        image: docker-all.artifactory.8451.cloud/redislabs/redisinsight:latest
+        credentials:
+          username: ${{ secrets.artifactory-username }}
+          password: ${{ secrets.artifactory-password }}
+        ports:
+          - '8001:8001'
+        volumes:
+          - redis_insight_volume_data:/data
+      jaeger:
+        image: docker-all.artifactory.8451.cloud/jaegertracing/all-in-one:1.22.0
+        credentials:
+          username: ${{ secrets.artifactory-username }}
+          password: ${{ secrets.artifactory-password }}
+        ports:
+          - '16686:16686'
+          - '6831:6831'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Pip Dependencies
+        uses: actions/cache@v4
+        if: ${{ inputs.use-pip-caching }}
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/${{ inputs.cache-key-hash-file }}') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install poetry
+        run: |
+          pip install poetry
+
+      - name: Install test dependencies
+        env:
+          POETRY_HTTP_BASIC_ARTIFACTORY_USERNAME: ${{ secrets.artifactory-username }}
+          POETRY_HTTP_BASIC_ARTIFACTORY_PASSWORD: ${{ secrets.artifactory-password }}
+        run: |
+          poetry install
+
+      - name: Run tests w/ coverage
+        id: run-tests-with-coverage
+        env:
+          SERVER_PORT: 8080
+          ENV: local
+          REDIS_HOST: redis-mora
+          REDIS_PORT: 6379
+          REDIS_DB: 0
+          REDIS_SSL: false
+          REDIS_PRIMARY_ACCESS_KEY: ''
+          REDIS_SOCKET_TIMEOUT: 10
+          REDIS_SOCKET_CONNECT_TIMEOUT: 10
+        run: |
+          poetry run pytest --cov=${{ inputs.project-source-location }} --cov-report=xml --junit-xml=junit-results.xml
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        if: always()
+        with:
+          paths: "junit-results.xml"
+          output: "test-summary.md"
+
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        if: always()
+        with:
+          filename: coverage.xml
+          badge: false
+          format: markdown
+          output: file
+
+      - name: Tests w/ Coverage Job Summary
+        if: always()
+        run: |
+          echo '
+          # Test Status
+          The tests completed with a status of: `${{ steps.run-tests-with-coverage.outcome }}`
+          ' >> $GITHUB_STEP_SUMMARY
+
+          cat test-summary.md >> $GITHUB_STEP_SUMMARY
+          rm test-summary.md
+
+          echo "\n" >> $GITHUB_STEP_SUMMARY
+
+          cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+          rm code-coverage-results.md
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v6
+        if: steps.run-tests-with-coverage.conclusion == 'success'
+        with:
+          report_paths: "junit-results.xml"
+          require_tests: true
+          check_name: "Unit and Integration Test Report"
+
+      - id: set-code-coverage-artifact-hash
+        run: echo "code-coverage-artifact-hash=${{ hashFiles('coverage.xml') }}" > $GITHUB_OUTPUT
+
+      # Coverage is uploaded for this workflow run, to pass along to the SonarQube job
+      - name: Upload Code Coverage
+        uses: actions/upload-artifact@v5
+        with:
+          name: code-coverage ${{ steps.set-code-coverage-artifact-hash.outputs.code-coverage-artifact-hash }}
+          path: coverage.xml
+
+  sonarqube:
+    name: 📡  SonarQube Analysis
+    needs:
+      - set-full-build-number
+      - test-with-coverage
+    uses: 8451LLC/sds-reusable-workflows/.github/workflows/sonarqube-analysis-component.yml@v2
+    with:
+      artifact-build-name: ${{ inputs.artifact-build-name }}
+      artifact-build-number: ${{ needs.set-full-build-number.outputs.artifact-full-build-number }}
+      project-key: ${{ inputs.sonarqube-project-key }}
+      project-version: ${{ inputs.sonarqube-project-version }}
+      source-dir: ${{ inputs.project-source-location }}
+      test-dir: ${{ inputs.sonarqube-test-dir }}
+      base-dir: ${{ inputs.sonarqube-base-dir }}
+      coverage-report-artifact: code-coverage ${{ needs.test-with-coverage.outputs.code-coverage-artifact-hash }}
+      exclusions: ${{ inputs.sonarqube-exclusions }}
+      coverage-exclusions: ${{ inputs.sonarqube-coverage-exclusions}}
+      metadata-file-path: ${{ inputs.metadata-file-path }}
+      extra-args: >-
+        -Dsonar.python.coverage.reportPaths=coverage.xml
+    secrets: inherit
+
+  # ---------------------------------------------------------------------------------
+  # Execute the build and publish the resulting wheel to Artifactory
+  #
+  # Please note:
+  # - this uses caching of the pip directory to help speed up dependency installs
+  # - This job uses pypa-build as the tool to generate the wheel
+  # - This job utilizes the jfrog rt command set to upload the wheel and publish the related build info
+  #
+  build-and-publish:
+    name: 📦 Build and Publish
+    runs-on: self-hosted
+    needs: [ test-with-coverage, sonarqube, set-full-build-number ]
+    container: ${{ inputs.build-image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Pip Dependencies
+        uses: actions/cache@v4
+        if: ${{ inputs.use-pip-caching }}
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/${{ inputs.cache-key-hash-file }}') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Setup Jfrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+
+      - name: Configure JFrog CLI
+        run: |
+          jf config add artifactory \
+            --artifactory-url=${{ inputs.artifactory-url }} --url=${{ inputs.jfrog-server-url }} \
+            --user=${{ secrets.artifactory-username }} --password='${{ secrets.artifactory-password }}' \
+            --interactive=false
+
+      - name: Configure Jfrog Pip
+        run: |
+          jf pip-config --server-id-resolve=artifactory --repo-resolve=${{ inputs.pip-artifactory-repo }}
+
+      - name: Upgrade Pip
+        run: |
+          jf pip install --upgrade pip \
+            --build-name=${{ inputs.artifact-build-name }} --build-number=${{ needs.set-full-build-number.outputs.artifact-full-build-number }} --module=${{ inputs.artifact-module-name }}
+
+      - name: Install Poetry
+        run: |
+          jf pip install poetry \
+            --build-name=${{ inputs.artifact-build-name }} --build-number=${{ needs.set-full-build-number.outputs.artifact-full-build-number }} --module=${{ inputs.artifact-module-name }}
+
+      - name: Poetry Install Dependencies
+        env:
+          POETRY_HTTP_BASIC_ARTIFACTORY_USERNAME: ${{ secrets.artifactory-username }}
+          POETRY_HTTP_BASIC_ARTIFACTORY_PASSWORD: ${{ secrets.artifactory-password }}
+        run: |
+          poetry install
+
+      - name: PyLint
+        run: |
+          poetry run pylint --fail-under=9.5 --recursive=y app
+
+      # TODO: Re-implement the logic to do python wheel prerelease suffixing correctly
+      - name: Format Version if Prerelease
+        id: format-prerelease-version
+        shell: bash
+        run: |
+          semantic_version="${{ inputs.artifact-build-number }}"
+          semantic_version="$(echo $semantic_version | sed 's/\-/./')"
+
+          echo "::set-output name=semantic-version::$semantic_version"
+
+      - name: Version Wheel
+        run: |
+          poetry version ${{ steps.format-prerelease-version.outputs.semantic-version }}
+
+      - name: Build Wheel
+        run: |
+          poetry build
+
+      - name: Upload Wheel to Artifactory
+        run: |
+          jf rt upload \
+            dist/ ${{ inputs.artifactory-upload-destination }}/${{ inputs.artifact-build-name }}/ \
+            --build-name=${{ inputs.artifact-build-name }} --build-number=${{ needs.set-full-build-number.outputs.artifact-full-build-number }} --module=${{ inputs.artifact-module-name }}
+
+      # Read the configured metadata file and parse out properties for Artifact build info
+      - name: Set Artifactory Properties From Metadata Yaml File
+        id: set-artifactory-props
+        uses: 8451LLC/read-metadata-file-action@main
+        if: ${{ !cancelled() && !failure() }}
+        with:
+          file: ${{ inputs.metadata-file-path }}
+
+      - name: Publish Build Info
+        run: |
+          jf rt build-collect-env ${{ inputs.artifact-build-name }} ${{ needs.set-full-build-number.outputs.artifact-full-build-number }}
+          jf rt build-add-git     ${{ inputs.artifact-build-name }} ${{ needs.set-full-build-number.outputs.artifact-full-build-number }}
+          jf rt build-publish     ${{ inputs.artifact-build-name }} ${{ needs.set-full-build-number.outputs.artifact-full-build-number }}
+          jf rt set-props --build="${{ inputs.artifact-build-name }}"/"${{ needs.set-full-build-number.outputs.artifact-full-build-number }}" "${{ steps.set-artifactory-props.outputs.artifactory_props }}"
+
+      - name: Artifactory Build Info Summary
+        run: |
+          echo '
+          # Artifactory Python Build Info
+          [`Link to published build`](${{ inputs.jfrog-server-url }}/ui/builds/${{ inputs.artifact-build-name }}/${{ needs.set-full-build-number.outputs.artifact-full-build-number }}) in Artifactory for build: `${{ inputs.artifact-build-name }}`: `${{ needs.set-full-build-number.outputs.artifact-full-build-number }}`
+          ' >> $GITHUB_STEP_SUMMARY
+
+  xray:
+    name: 📝 Run XRay Scan and Publish Report
+    needs:
+      - build-and-publish
+      - set-full-build-number
+    uses: 8451LLC/sds-reusable-workflows/.github/workflows/xray-scan-component.yml@v2
+    secrets: inherit
+    with:
+      artifact-build-name: ${{ inputs.artifact-build-name }}
+      artifact-build-number: ${{ needs.set-full-build-number.outputs.artifact-full-build-number }}
+
+  # ---------------------------------------------------------------------------------
+  # Removes the temporary artifacts that were need for the build and publish process.
+  #
+  cleanup-artifacts:
+    name: 🧽 Cleanup Build Artifacts
+    needs: sonarqube
+    runs-on: self-hosted
+    if: ${{ always() }}
+    steps:
+      - uses: actions/checkout@v4
+      # Need to delete the code coverage artifact to make sure they aren't visible in the UI
+      - name: Delete Artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            code-coverage

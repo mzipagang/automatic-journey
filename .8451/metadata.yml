@@ -1,0 +1,15 @@
+program: media
+profit_stream: kpm
+value_stream: Commercial Experiences
+business_domain: self_service_onsite
+product: kroger_ad_platform
+capability: onsite_pla_api
+component: media_onsite_apis
+team: onsite-partnership
+contacts:
+  team:
+    - MediaOnsitePartnership_DL@8451.com
+  technical:
+    - carolina.lopez@8451.com
+  product:
+    - adele.stanley@8451.com
