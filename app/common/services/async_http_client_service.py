@@ -17,8 +17,8 @@ from app.common.model.harness_feature_flags import HarnessFeatureFlags
 from app.common.retry.predicates import koddi_token_fetch_failed_503
 from app.common.services.config_service import ConfigService
 from app.common.services.async_http_connection_service import AsyncHttpConnectionService
-from app.common.services.http_client_service import _process_koddi_token_response
 from app.common.utils import filtered_logger
+from app.common.utils.http_response import process_koddi_token_response
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(authorizationUrl="auth", tokenUrl="token")
 
@@ -196,7 +196,7 @@ class AsyncKoddiHttpClientService:
     async def __get_koddi_token(self):
         logger.info("Requesting Koddi token")
         response = await self.__external_api_http_client.get(path=KODDI_SSO_SERVICE_JWT_PATH)
-        return _process_koddi_token_response(response)
+        return process_koddi_token_response(response)
 
     async def close(self):
         await self.__httpx_client.aclose()
