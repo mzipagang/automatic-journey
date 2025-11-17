@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import Depends
 
+from app.common.configuration.constants import KODDI_SSO_SERVICE_ENDPOINT
 from app.common.decorators.locked import locked_with_params
 from app.common.model.advertiser import KoddiAdvertiser
 from app.common.model.configuration import LockConfig
@@ -25,7 +26,7 @@ class KoddiSSOGateway:
             If the API response indicates a server error or if the request fails.
     """
     __external_api_http_client: AsyncAdapter
-    ENDPOINT = "/map-koddi-sso-service"
+    ENDPOINT = KODDI_SSO_SERVICE_ENDPOINT
     __koddi_advertisers_shim_path = f"{ENDPOINT}/koddi/v1/advertisers"
     __koddi_brands_shim_path = f"{ENDPOINT}/koddi/v1/brands"
 

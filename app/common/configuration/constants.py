@@ -1,1 +1,5 @@
 UPCS_LAST_SOLD_WITHIN_DAYS = 30
+
+# Koddi SSO Service endpoints
+KODDI_SSO_SERVICE_ENDPOINT = "/map-koddi-sso-service"
+KODDI_SSO_SERVICE_JWT_PATH = f"{KODDI_SSO_SERVICE_ENDPOINT}/koddi/jwt"

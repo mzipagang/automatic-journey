@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 from fastapi import HTTPException
 from httpx import Request, Response
 
+from app.common.configuration.constants import KODDI_SSO_SERVICE_JWT_PATH
 from app.common.context.context import user_context, security_context
 from app.common.services.config_service import Config
 from app.common.services.http_client_service import KoddiHttpClientService, ExternalApiHttpClientService, HttpClientService
@@ -124,7 +125,7 @@ class TestHttpClientService(unittest.TestCase):
             timeout=None)
 
         self.__mock_external_api_http_client_service.get.assert_called_once_with(
-            path="/ent-client-gateway/koddi/jwt")
+            path=KODDI_SSO_SERVICE_JWT_PATH)
 
     def test_koddi_close__should_succeed(self):
         self.subject_koddi_client.close()

@@ -9,6 +9,7 @@ from httpx import AsyncClient
 from httpx import Response
 from httpx import codes as httpx_codes
 
+from app.common.configuration.constants import KODDI_SSO_SERVICE_JWT_PATH
 from app.common.context.context import security_context
 from app.common.context.context_vars import SecurityContextVarNames
 from app.common.decorators.decorators import conditionally_retry
@@ -193,7 +194,7 @@ class AsyncKoddiHttpClientService:
     )
     async def __get_koddi_token(self):
         logger.info("Requesting Koddi token")
-        response = await self.__external_api_http_client.get(path="/ent-client-gateway/koddi/jwt")
+        response = await self.__external_api_http_client.get(path=KODDI_SSO_SERVICE_JWT_PATH)
 
         logger.info("Koddi token response. Code: %s", response.status_code)
 
@@ -203,13 +204,13 @@ class AsyncKoddiHttpClientService:
             _log_and_raise_on_upstream_error(
                 response=response,
                 info="Malformed response from Koddi",
-                path="/ent-client-gateway/koddi/jwt")
+                path=KODDI_SSO_SERVICE_JWT_PATH)
 
         elif httpx_codes.is_server_error(response.status_code):
             _log_and_raise_on_upstream_error(
                 response=response,
                 info="Error fetching Koddi token",
-                path="/ent-client-gateway/koddi/jwt")
+                path=KODDI_SSO_SERVICE_JWT_PATH)
 
         elif httpx_codes.is_client_error(response.status_code):
             logger.error("Get Koddi Token Code: %s - Response: %s", response.status_code, response.content)
