@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from httpx import Response
 from httpx import codes
 
-from app.common.services.http_client_service import _log_and_raise_on_client_error, _log_and_raise_on_upstream_error
+from app.common.utils.http_response import _log_and_raise_on_client_error, _log_and_raise_on_upstream_error
 from app.common.utils import filtered_logger
 
 logger = filtered_logger.get_logger(__name__)

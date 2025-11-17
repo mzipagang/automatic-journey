@@ -18,7 +18,7 @@ from app.common.retry.predicates import koddi_token_fetch_failed_503
 from app.common.services.config_service import ConfigService
 from app.common.services.async_http_connection_service import AsyncHttpConnectionService
 from app.common.utils import filtered_logger
-from app.common.utils.http_response import process_koddi_token_response
+from app.common.utils.http_response import process_json_response, process_koddi_token_response
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(authorizationUrl="auth", tokenUrl="token")
 
@@ -307,40 +307,10 @@ class _VerbFunctors:
     def __process_json_response(response: Response,
                                 json_has_data_field: bool = False,
                                 forward_client_error_response_content=False) -> Response | None:
-        if httpx_codes.is_success(response.status_code):
-            try:
-                json = response.json()
-            except JSONDecodeError:
-                json = None
-
-            if json is not None and (not json_has_data_field or 'data' in json):
-                return response
-
-            _log_and_raise_on_upstream_error(
-                response=response,
-                info="Malformed response",
-                path=response.url.path)
-
-        elif httpx_codes.is_server_error(response.status_code):
-            _log_and_raise_on_upstream_error(
-                response=response,
-                info="Error service response",
-                path=response.url.path)
-
-        elif httpx_codes.is_client_error(response.status_code):
-            _log_and_raise_on_client_error(
-                response=response,
-                info="Error client response",
-                path=response.url.path,
-                forward_client_error_response_content=forward_client_error_response_content)
-
-        else:
-            logger.error(
-                "Upstream service error from %s. Code: %s - Response: %s",
-                response.url,
-                response.status_code,
-                response.content)
-            raise HTTPException(status_code=500, detail="Unexpected error processing JSON response")
+        return process_json_response(
+            response=response,
+            json_has_data_field=json_has_data_field,
+            forward_client_error_response_content=forward_client_error_response_content)
 
     @staticmethod
     def __safely_inject_auth_param(token: str, base_params: dict) -> dict:
@@ -348,45 +318,3 @@ class _VerbFunctors:
         new_base_params['headers']['Authorization'] = f'Bearer {token}'
 
         return new_base_params
-
-def _log_and_raise_on_upstream_error(response: Response, info: str, path: str):
-    logger.error(
-        "%s at %s",
-        info,
-        path,
-        extra={
-            'monitored_transaction': 'HTTP-UPSTREAM-ERROR--SERVICE-ERROR-RESPONSE',
-            'response': response.content,
-            'response_code': response.status_code
-        }
-    )
-    raise HTTPException(
-        status_code=503,
-        detail="Temporary service error.  Please try again.",
-        headers={"Retry-After": "5"})
-
-def _log_and_raise_on_client_error(
-        response: Response,
-        info: str,
-        path: str,
-        forward_client_error_response_content=False):
-    logger.warning(
-        "%s at %s",
-        info,
-        path,
-        extra={
-            'monitored_transaction': 'HTTP-UPSTREAM-ERROR--CLIENT-ERROR-RESPONSE',
-            'response': response.content,
-            'response_code': response.status_code
-        }
-    )
-    if forward_client_error_response_content:
-        if 'application/json' in response.headers.get('Content-Type', ''):
-            try:
-                detail_content = response.json()
-            except JSONDecodeError:
-                detail_content = response.text
-        else:
-            detail_content = response.text
-        raise HTTPException(status_code=response.status_code, detail=detail_content)
-    raise HTTPException(status_code=response.status_code)
