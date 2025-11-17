@@ -195,29 +195,7 @@ class KoddiHttpClientService:
     def __get_koddi_token(self):
         logger.info("Requesting Koddi token")
         response = self.__external_api_http_client.get(path=KODDI_SSO_SERVICE_JWT_PATH)
-
-        logger.info("Koddi token response. Code: %s", response.status_code)
-
-        if httpx_codes.is_success(response.status_code):
-            if response.content is not None:
-                return str(response.content, 'utf-8')
-            _log_and_raise_on_upstream_error(
-                response=response,
-                info="Malformed response from Koddi",
-                path=KODDI_SSO_SERVICE_JWT_PATH)
-
-        elif httpx_codes.is_server_error(response.status_code):
-            _log_and_raise_on_upstream_error(
-                response=response,
-                info="Error fetching Koddi token",
-                path=KODDI_SSO_SERVICE_JWT_PATH)
-
-        elif httpx_codes.is_client_error(response.status_code):
-            logger.error("Get Koddi Token Code: %s - Response: %s", response.status_code, response.content)
-            raise HTTPException(status_code=response.status_code)
-
-        logger.error("Get Koddi Token Code: %s - Response: %s", response.status_code, response.content)
-        raise HTTPException(status_code=500, detail="Unexpected error fetching Reporting token")
+        return _process_koddi_token_response(response)
 
     def close(self):
         self.__httpx_client.close()
@@ -368,6 +346,30 @@ class _VerbFunctors:
                 response.status_code,
                 response.content)
             raise HTTPException(status_code=500, detail="Unexpected error processing JSON response")
+
+def _process_koddi_token_response(response: Response) -> str:
+    logger.info("Koddi token response. Code: %s", response.status_code)
+
+    if httpx_codes.is_success(response.status_code):
+        if response.content is not None:
+            return str(response.content, 'utf-8')
+        _log_and_raise_on_upstream_error(
+            response=response,
+            info="Malformed response from Koddi",
+            path=KODDI_SSO_SERVICE_JWT_PATH)
+
+    elif httpx_codes.is_server_error(response.status_code):
+        _log_and_raise_on_upstream_error(
+            response=response,
+            info="Error fetching Koddi token",
+            path=KODDI_SSO_SERVICE_JWT_PATH)
+
+    elif httpx_codes.is_client_error(response.status_code):
+        logger.error("Get Koddi Token Code: %s - Response: %s", response.status_code, response.content)
+        raise HTTPException(status_code=response.status_code)
+
+    logger.error("Get Koddi Token Code: %s - Response: %s", response.status_code, response.content)
+    raise HTTPException(status_code=500, detail="Unexpected error fetching Reporting token")
 
 def _log_and_raise_on_upstream_error(response: Response, info: str, path: str):
     logger.error(

@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, AsyncMock, patch
 from fastapi import HTTPException
 from httpx import Response
 
+from app.common.configuration.constants import KODDI_SSO_SERVICE_BRANDS_PATH
 from app.common.gateways.koddi_sso_gateway import KoddiSSOGateway
 from app.common.model.downstream.advertiser_service import KoddiAdvertiserMultiBrand, KoddiAdvertiserMultiBrandRequest
 from tests.utils_for_testing.auto_mock import auto_mock
@@ -63,7 +64,7 @@ class TestKoddiSSOGateway(IsolatedAsyncioTestCase):
         self.assertEqual("Backend service unavailable", context.exception.detail)
 
         self.__mock_async_external_http_client_service.get.assert_called_once_with(
-            path="/map-koddi-sso-service/koddi/v1/brands",
+            path=KODDI_SSO_SERVICE_BRANDS_PATH,
             params={"filter.brandId": "abc123"},
             response_body_type='json',
             json_has_data_field=True,
@@ -88,7 +89,7 @@ class TestKoddiSSOGateway(IsolatedAsyncioTestCase):
             forward_client_error_response_content=True,
             json_has_data_field=True,
             params={'filter.brandId': 'abc123'},
-            path='/map-koddi-sso-service/koddi/v1/brands',
+            path=KODDI_SSO_SERVICE_BRANDS_PATH,
             response_body_type='json'
         )
 
@@ -126,7 +127,7 @@ class TestKoddiSSOGateway(IsolatedAsyncioTestCase):
         self.assertEqual("agency1", result.agencyId)
         self.assertEqual(1.0, result.brandItemRequests[0].percentage)
         self.__mock_async_external_http_client_service.post.assert_called_once_with(
-            path="/map-koddi-sso-service/koddi/v1/brands",
+            path=KODDI_SSO_SERVICE_BRANDS_PATH,
             json={
                 "brandItemRequests": [{
                     "brandId": "brandMain",
@@ -153,7 +154,7 @@ class TestKoddiSSOGateway(IsolatedAsyncioTestCase):
         self.assertEqual("Backend service unavailable", context.exception.detail)
 
         self.__mock_async_external_http_client_service.get.assert_called_once_with(
-            path="/map-koddi-sso-service/koddi/v1/brands",
+            path=KODDI_SSO_SERVICE_BRANDS_PATH,
             params={'filter.brandId': "abc123"},
             response_body_type='json',
             json_has_data_field=True,
