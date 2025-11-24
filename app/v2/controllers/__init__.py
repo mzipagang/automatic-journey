@@ -16,7 +16,8 @@ __all__ = ['create_campaign',
            'get_products',
            'get_contacts',
            'get_addresses',
-           'get_advertisers'
+           'get_advertisers',
+           'get_available_products_by_ad_group'
            ]
 
 

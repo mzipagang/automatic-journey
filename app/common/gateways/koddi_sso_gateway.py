@@ -2,7 +2,8 @@ from typing import List
 
 from fastapi import Depends
 
-from app.common.configuration.constants import KODDI_SSO_SERVICE_ENDPOINT
+from app.common.configuration.constants import KODDI_SSO_SERVICE_ENDPOINT, KODDI_SSO_SERVICE_BRANDS_PATH, \
+    KODDI_SSO_SERVICE_ADVERTISERS_PATH
 from app.common.decorators.locked import locked_with_params
 from app.common.model.advertiser import KoddiAdvertiser
 from app.common.model.configuration import LockConfig
@@ -27,8 +28,8 @@ class KoddiSSOGateway:
     """
     __external_api_http_client: AsyncAdapter
     ENDPOINT = KODDI_SSO_SERVICE_ENDPOINT
-    __koddi_advertisers_shim_path = f"{ENDPOINT}/koddi/v1/advertisers"
-    __koddi_brands_shim_path = f"{ENDPOINT}/koddi/v1/brands"
+    __koddi_advertisers_shim_path = KODDI_SSO_SERVICE_ADVERTISERS_PATH
+    __koddi_brands_shim_path = KODDI_SSO_SERVICE_BRANDS_PATH
 
     def __init__(
             self,

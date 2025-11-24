@@ -18,6 +18,7 @@ from app.common.view_models import (
     ListResponse,
     SingleResponse,
     Entity,
+    CreateEntitiesRequest,
 )
 from app.common.context.context import logging_extra_context
 from app.common.gateways.activation_gateway import ActivationGateway
@@ -89,7 +90,7 @@ class AdGroupService:
     keyword_service: KeywordService
     campaign_gateway: CampaignServiceGateway
     placement_service: PlacementService
-    __campaign_service: CampaignService
+    campaign_service: CampaignService
     target_service: TargetService
     division_service: DivisionService
     request_validator: AdGroupRequestValidator
@@ -197,6 +198,10 @@ class AdGroupService:
             entities_request: EntitiesRequest
     ) -> SingleResponse[AdGroupV2]:
         activation_response = await self.__get_activation_by_ad_group_id(ad_group_id)
+        if isinstance(entities_request, CreateEntitiesRequest) \
+            and activation_response.data.channel_data.get("biddableEntities"):
+            raise HTTPException(status_code=409, detail="Entities already exist")
+
         if activation_response.data.status == ActivationStatus.ENDED:
             raise HTTPException(
                 status_code=400,
@@ -417,15 +422,18 @@ class AdGroupService:
         )
         ad_group_placements = await self.target_translation.build_placements_types(ad_group_placement_targets)
         brand_codes = await self.__get_brand_codes_from_advertisers(campaign_response.data)
-        bid_recommendations_id, entity_errors = (
-            await self.__build_bid_object(
-                entities_request=ad_group_request.entities,
-                campaign_type=campaign_type,
-                base_bid_request=ad_group_request.baseBid,
-                placement_types=ad_group_placements,
-                brand_codes=brand_codes
+
+        bid_recommendations_id = None
+        if ad_group_request.entities:
+            bid_recommendations_id, _ = (
+                await self.__build_bid_object(
+                    entities_request=ad_group_request.entities,
+                    campaign_type=campaign_type,
+                    base_bid_request=ad_group_request.baseBid,
+                    placement_types=ad_group_placements,
+                    brand_codes=brand_codes
+                )
             )
-        )
         location_group_id = await self.division_service.build_location_group(
             ad_group_division_targets
         )

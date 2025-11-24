@@ -1108,3 +1108,75 @@ class TestCampaignService(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(context)
         self.assertEqual(404, context.exception.status_code)
         self.assertEqual("Campaign not found", context.exception.detail)
+
+    @pytest.mark.asyncio
+    async def test_create_campaign_today_date_8pm_12am_error(self):
+        # set timezoone to America/New_York
+        # set current time to today 11:00 PM
+        from unittest.mock import patch
+        from zoneinfo import ZoneInfo
+
+        # Simulate current time (America/New_York 2025-03-15 23:00:00) without freezegun
+        with patch("app.v2.utils.campaign_tools.datetime") as mock_datetime:
+            mock_datetime.now.return_value = datetime(2025, 3, 15, 23, 0, 0, tzinfo=ZoneInfo("America/New_York"))
+            mock_datetime.strftime = datetime.strftime
+            # Arrange
+            campaign_request = CampaignRequest(
+                name='Test Campaign',
+                status=CampaignStatus.DRAFT,
+                budgetAmount=1000.0,
+                budgetType=BudgetType.DAILY,
+                pacingType=PacingType.EVEN,
+                startDate="2025-03-15",  # today's date
+                advertiserIds=[1],
+                accountId=1,
+                billingInsertionOrder='IO-001',
+                billingContactId=1,
+                billingAddressId=1,
+                campaignType=CampaignType.PLA
+            )
+
+            current_user = {
+                'username': 'test_user',
+                'is_agency': True,
+                'works_for': {'clientId': 'agency-123'},
+            }
+
+            self.service.validator.validate_account_and_advertisers = AsyncMock()
+            self.mock_lookup_service.get_account_long_id_by_short_id.return_value = 'acct-1'
+            self.service.advertiser_service.get_advertisers_by_numeric_ids.return_value = [CachedAdvertiser(
+                id=1,
+                brandId='0a849f1f-f866-4cfe-ad2a-f48f8daf9de2',
+                name='advertiser_name',
+                accountId=1,
+                description='advertiser_description',
+                active=True
+            )]
+            self.mock_lookup_service.get_address_details_by_short_id.return_value = CachedAddress(
+                **{"id": "1", "addressType": "AGENCY"})
+            self.mock_lookup_service.get_contact_details_by_short_id.return_value = CachedContact(
+                **{"id": "1", "contactType": "CPG"})
+            self.mock_contact_service.get_internal_default_contacts.return_value = \
+                [InternalContact(type='ACCOUNT_EXECUTIVE', id='1')]
+            self.service.validator.validate_billing_info.return_value = {
+                'billing_contact_id': "1",
+                'corporate_address_id': "2",
+                'billing_address_id': "1",
+                'is_agency_billed': True,
+            }
+
+            mock_campaign = MagicMock()
+            mock_campaign.id = 'internal-123'
+            mock_campaign.shortId = '321'
+            self.service._start_campaign = AsyncMock(return_value=mock_campaign)
+            # self.service._update_campaign_with_details = AsyncMock(return_value=True)
+            self.service._update_campaign_with_details = AsyncMock(
+                side_effect=HTTPException(status_code=400, detail="select or enter start date that is today or in the future"))
+            # self.service.get_campaign_single_response_by_id = AsyncMock(return_value='response')
+
+            # Act & Assert
+            with self.assertRaises(HTTPException) as context:
+                await self.service.create_campaign(campaign_request, current_user, source="test")
+
+            self.assertEqual(context.exception.status_code, 400)
+            self.assertEqual(context.exception.detail, "select or enter start date that is today or in the future")

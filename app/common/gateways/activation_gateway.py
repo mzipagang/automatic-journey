@@ -8,7 +8,6 @@ from app.common.context.context import logging_extra_context
 from app.common.decorators.decorators import conditionally_retry, async_conditionally_execute
 from app.common.exceptions import ActivationLockedException, AdGroupNotPublishedException
 from app.common.model.harness_feature_flags import HarnessFeatureFlags
-from app.common.model.shared import PublishStatus
 from app.common.services.async_http_client_service import AsyncInternalApiHttpClientService
 from app.common.services.harness_service import HarnessService
 from app.common.utils.async_adapter import AsyncAdapter

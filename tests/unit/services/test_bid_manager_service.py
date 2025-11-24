@@ -10,7 +10,7 @@ from app.common.model.campaign_types import InternalCampaignType, BidManagerCamp
 from app.common.model.downstream.product_manager import ProductSearchResponse, ProductManagerMeta, \
     ProductManagerMetaPage, Product, Taxonomy, TaxonomyProperties
 from app.common.model.redis import CachedProduct
-from app.common.view_models import EntitiesRequest, Entity
+from app.common.view_models import Entity, UpdateEntitiesRequest
 from app.v2.model.downstream.activation_service import (
     ActivationResponse,
     ActivationResponseV2, ChannelConfig,
@@ -54,7 +54,8 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
             product_gateway=self.mock_product_gateway,
         )
 
-    def __mock_entities(self, **kwargs):
+    @staticmethod
+    def __mock_entities(**kwargs):
         default_args = {
             "id": 1234,
             "bidAmount": 0.2,
@@ -79,7 +80,7 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
         entities = self.__mock_entities(id=entity_id)
         base_bid = 0.1
         expected_response = CreateBidsRequest(
-            type="PLA",
+            type=InternalCampaignType.PLA,
             default_bid=base_bid,
             bids=[Bid(id=product_upc, bid_amount=0.2)]
         )
@@ -101,7 +102,7 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
         entities = self.__mock_entities(id=entity_id)
         base_bid = 0.1
         expected_response = CreateBidsRequest(
-            type="PLA",
+            type=InternalCampaignType.PLA,
             default_bid=base_bid,
             bids=[]
         )
@@ -122,7 +123,7 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
         entities = self.__mock_entities(id=entity_id)
         base_bid = 0.1
         expected_response = CreateBidsRequest(
-            type="PLA",
+            type=InternalCampaignType.PLA,
             default_bid=base_bid,
             bids=[]
         )
@@ -186,7 +187,7 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
         entities = self.__mock_entities(id=entity_id)
         base_bid = 0.1
         created_bids_request = CreateBidsRequest(
-            type="PLA",
+            type=InternalCampaignType.PLA,
             default_bid=base_bid,
             bids=[Bid(id=product_upc, bid_amount=0.2)]
         )
@@ -302,7 +303,7 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
     async def test_get_entities__sets_use_base_bid_to_false_if_bid_amount_is_different_from_default(self):
         biddable_entity_ids = ["1234"]
         expected_entities = [
-            Entity(id="4321", useBaseBid=False, bidAmount=0.2, deleted=False),
+            Entity(id=4321, useBaseBid=False, bidAmount=0.2, deleted=False),
         ]
         self.mock_bid_manager_gateway.get_bids.return_value = MultipleBidsResponseData(
             found=[BidsResponseData(
@@ -368,7 +369,7 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
     async def test_get_entities__includes_bids_with_lowercase_campaign_types(self):
         biddable_entity_ids = ["1234"]
         expected_entities = [
-            Entity(id="4321", useBaseBid=False, bidAmount=0.2, deleted=False)
+            Entity(id=4321, useBaseBid=False, bidAmount=0.2, deleted=False)
         ]
         self.mock_bid_manager_gateway.get_bids.return_value = MultipleBidsResponseData(
             found=[
@@ -395,7 +396,7 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
     async def test_get_entities__includes_bids_with_lowercase_carousel_type(self):
         biddable_entity_ids = ["1234"]
         expected_entities = [
-            Entity(id="4321", useBaseBid=False, bidAmount=0.2, deleted=False)
+            Entity(id=4321, useBaseBid=False, bidAmount=0.2, deleted=False)
         ]
         self.mock_bid_manager_gateway.get_bids.return_value = MultipleBidsResponseData(
             found=[
@@ -918,7 +919,7 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
             channel_config={"type", InternalCampaignType.PLA},
             channel_data={"biddableEntities": None}
         )
-        entities_request = EntitiesRequest(
+        entities_request = UpdateEntitiesRequest(
             entities=self.__mock_entities(),
         )
         expected_bid_request = CreateBidsRequest(
@@ -947,7 +948,7 @@ class TestBidManagerService(IsolatedAsyncioTestCase):
                 "channel_data": {"biddableEntities": current_bid_group_id}
             }
         )
-        entities_request = EntitiesRequest(
+        entities_request = UpdateEntitiesRequest(
             baseBid=0.1,
             entities=self.__mock_entities(),
         )

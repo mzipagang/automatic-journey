@@ -3,24 +3,27 @@ from fastapi_versioning import version
 
 from app.common.decorators.requires_all_roles import requires_all_roles
 from app.common.model.harness_feature_flags import HarnessFeatureFlags
+from app.common.model.product import ProductResponse
 from app.common.services.harness_service import HarnessService
 from app.common.view_models import (
     SingleResponse,
     ListResponse,
     KeywordsResponse,
-    EntitiesRequest,
     KeywordBidModifiersRequest,
     AuthRole,
+    CreateEntitiesRequest,
+    UpdateEntitiesRequest,
 )
 from app.common.decorators.backoff_wait_rate_limited import backoff_wait_rate_limited
 from app.common.decorators.cid_rate_limited import cid_rate_limited
 from app.common.decorators.harness_locked import locked
+from app.v2.services.ad_group_product_service import AdGroupProductService
 from app.v2.services.ad_group_service import AdGroupService
 from app.common.services.config_service import ConfigService
 from app.common.utils import filtered_logger
 from app.common.utils.exceptions import CustomHTTPExceptionRoute
 from app.common.utils.jwt import validate_user
-from app.v2.view_models import AdGroupUpdateRequest, AdGroupV2, AdGroupV2Request, AdGroupUpdateRequestV2
+from app.v2.view_models import AdGroupV2, AdGroupV2Request, AdGroupUpdateRequestV2
 
 logger = filtered_logger.get_logger(__name__)
 
@@ -177,10 +180,33 @@ async def update_ad_group(
 @requires_all_roles([AuthRole.ADVERTISER_API])
 async def update_ad_group_entities(
         ad_group_id: int,
-        entities_request: EntitiesRequest,
+        entities_request: UpdateEntitiesRequest,
         ad_group_service: AdGroupService = Depends(AdGroupService)
 ) -> SingleResponse[AdGroupV2]:
     return await ad_group_service.update_entities(ad_group_id, entities_request)
+
+@router.post(
+    path="/ad_groups/{ad_group_id}/entities",
+    name="Create Ad Group entities",
+    description=(
+            "Add entities to an Ad Group in the Media Platform. Read more about [Ad groups]"
+            "(https://mp-help.8451.com/mp-help/content/about/ad-groups.htm) in our Media Platform Learning Center."
+    ),
+    status_code=status.HTTP_200_OK,
+    response_model=SingleResponse[AdGroupV2],
+    response_model_exclude_unset=True
+)
+@locked(
+    lock_config_name=HarnessFeatureFlags.UPDATE_ACTIVATION_LOCK_CONFIG,
+    entity_id_name="ad_group_id",
+    logger=logger)
+@requires_all_roles([AuthRole.ADVERTISER_API])
+async def create_ad_group_entities(
+        ad_group_id: int,
+        create_entities_request: CreateEntitiesRequest,
+        ad_group_service: AdGroupService = Depends(AdGroupService)
+) -> SingleResponse[AdGroupV2]:
+    return await ad_group_service.update_entities(ad_group_id, create_entities_request)
 
 
 @version(2)
@@ -246,3 +272,28 @@ async def get_ad_group_eligible_keywords(
 ) -> KeywordsResponse:
     keywords_response = await ad_group_service.get_keywords_by_ad_group_id(ad_group_id)
     return keywords_response
+
+@version(2)
+@router.get(
+    path="/ad_groups/{ad_group_id}/available_products",
+    name="Get available products",
+    dependencies=[Depends(validate_user)],
+    description=(
+        "Get all products available to a specific ad group"),
+    status_code=status.HTTP_200_OK,
+    response_model=ProductResponse,
+    response_model_exclude_unset=True
+)
+@requires_all_roles([AuthRole.ADVERTISER_API])
+async def get_available_products_by_ad_group(
+        ad_group_id: int,
+        item_offset: int = Query(default=0, description="Item offset"),
+        page_size: int = Query(default=100, description="Page size"),
+        current_user: dict = Depends(validate_user),
+        ad_group_product_service: AdGroupProductService = Depends(AdGroupProductService)
+) -> ProductResponse:
+    return await ad_group_product_service.get_products_by_ad_group(
+        current_user=current_user,
+        ad_group_id=ad_group_id,
+        offset=item_offset,
+        page_size=page_size)

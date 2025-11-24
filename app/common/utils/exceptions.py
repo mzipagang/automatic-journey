@@ -15,6 +15,7 @@ from app.common.exceptions.campaign_exceptions import CampaignNotPublishedExcept
 from app.common.exceptions import RateLimitExceededException
 from app.common.utils import filtered_logger
 from app.common.utils.context_tools import update_context
+from app.common.utils.date_utils import is_not_valid_time_frame_create_campaign_today
 
 logger = filtered_logger.get_logger(__name__)
 
@@ -30,6 +31,8 @@ def create_custom_route_handler(original_route_handler: Callable[[Request], Coro
             return await original_route_handler(request)
         except StarletteHTTPException as exc:
             detail = exc.detail if isinstance(exc.detail, dict) else {"msg": str(exc.detail)}
+            if detail.get("msg"):
+                add_extra_info_to_error_msg(request, detail)
             if exc.status_code in range(400, 499):
                 logger.warning(detail)
             else:
@@ -135,3 +138,9 @@ def generate_error_reason_from_validation_error(error):
 
     msg = error['msg']
     return f"{json_location}: {msg}"
+
+def add_extra_info_to_error_msg(request, error_detail):
+    """Add extra info to error message."""
+    if error_detail.get("msg") == "select or enter start date that is today or in the future":
+        if is_not_valid_time_frame_create_campaign_today(request):
+            error_detail.setdefault("reason", "Campaigns with a start date of today cannot be created between 8 PM EST and 11:59:59 PM EST.")

@@ -170,6 +170,26 @@ class EntClientServiceGateway:
 
         return ListDataResponse[CachedRedisAdvertiser, EntClientServiceMeta](**response.json())
 
+    async def get_user_brands(
+            self,
+            account_id: str
+    ) -> ListDataResponse[CachedRedisAdvertiser, EntClientServiceMeta]:
+        path = f"/ent-client-service/clients/v1/product/{self.__product_id}/brands"
+        response = await self.__http_client.get(
+            path=path,
+            response_body_type="json",
+            json_has_data_field=True
+        )
+
+        data = response.json()
+        meta = EntClientServiceMeta(**(data.get("meta") or {}))
+
+        filtered_brands = list(filter(
+            lambda brand: brand.get("client", {}).get("clientId") == account_id,
+            data.get("data", [])
+        ))
+        return ListDataResponse[CachedRedisAdvertiser, EntClientServiceMeta](data=filtered_brands, meta=meta)
+
     @conditional_cache(
         key_builder=get_user__upstream_key_builder_c2,
         coder=PydanticCoderFactory.build(ApiUserResponse)

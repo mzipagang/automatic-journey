@@ -10,9 +10,9 @@ from app.common.view_models import (
     SingleResponse,
     AdGroupStatus,
     KeywordBidModifiersRequest,
-    KeywordBidModifier, Entity,
+    KeywordBidModifier, Entity, CreateEntitiesRequest,
 )
-from app.v2.model.downstream.activation_service import ChannelConfig, ActivationPayload, ChannelData, ActivationMetaData
+from app.v2.model.downstream.activation_service import ChannelConfig, ChannelData, ActivationMetaData
 from app.common.model.campaign_types import InternalCampaignType
 from app.common.model.placement import PlacementType
 from app.common.model.shared import UpstreamValidationWarning, BudgetType
@@ -190,6 +190,22 @@ class TestAdGroupServiceV2(IsolatedAsyncioTestCase):
         self.assertEqual(404, context.exception.status_code)
         self.assertEqual("Ad group not found", context.exception.detail)
         self.mock_lookup.get_adgroup_long_id_by_short_id.assert_called_once_with(ad_group_id)
+
+    async def test_update_entities__create_entities__entities_exist(self):
+        self.mock_activation_gateway.get_activation_by_id.return_value = AsyncMock(
+            spec=ActivationResponseV2[ActivationResponse],
+            data=MagicMock(
+                spec=AdGroupV2,
+                channel_data={'biddableEntities': ['abc-123']}
+            )
+        )
+        with self.assertRaises(HTTPException) as context:
+            await self.ad_group_service.update_entities(
+                ad_group_id=1234,
+                entities_request=MagicMock(spec=CreateEntitiesRequest)
+            )
+        self.assertEqual(409, context.exception.status_code)
+
 
     async def test_update_entities__raises_error_if_activation_is_ended(self):
         mocks = self.__mock_dependencies()

@@ -81,6 +81,19 @@ def process_json_response(
         raise HTTPException(status_code=500, detail="Unexpected error processing JSON response")
 
 
+def handle_response(response: Response,
+                      response_body_type: str = None,
+                      json_has_data_field: bool = False,
+                      forward_client_error_response_content=False) -> Response | None:
+    if response_body_type is None:
+        return response
+    if response_body_type == 'json':
+        return process_json_response(
+            response=response,
+            json_has_data_field=json_has_data_field,
+            forward_client_error_response_content=forward_client_error_response_content)
+
+
 def _log_and_raise_on_upstream_error(response: Response, info: str, path: str):
     """Log and raise an HTTPException for upstream server errors."""
     logger.error(
@@ -124,7 +137,7 @@ def _log_and_raise_on_client_error(
         if 'application/json' in response.headers.get('Content-Type', ''):
             try:
                 detail_content = response.json()
-            except (JSONDecodeError, ValueError):
+            except ValueError:
                 detail_content = response.text
         else:
             detail_content = response.text

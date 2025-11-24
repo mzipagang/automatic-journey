@@ -213,3 +213,10 @@ class HarnessFeatureFlags(StrEnum):
 
     `Harness Link <https://app.harness.io/ng/account/41qEjy6URi2XdYnozuPISA/module/cf/orgs/Media/projects/Kroger_Ad_Platform/feature-flags/Onsite_Partnership_KAP_API_include_ad_group_errors?activeEnvironment=dev>`_
     """
+
+    GOAL_DATA = "Onsite_Partnership_KAP_API_Allow_Goal_Type"
+    """
+    Usage: Used to toggle whether include ad group errors is be enabled
+
+    `Harness Link <https://app.harness.io/ng/account/41qEjy6URi2XdYnozuPISA/module/cf/orgs/Media/projects/Kroger_Ad_Platform/feature-flags/Onsite_Partnership_KAP_API_include_ad_group_errors?activeEnvironment=dev>`_
+    """

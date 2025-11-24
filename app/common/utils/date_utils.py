@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, time
 from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException
@@ -82,3 +82,21 @@ def add_years(date: datetime, years: int) -> datetime:
             microsecond=date.microsecond,
             tzinfo=date.tzinfo
         )
+
+def is_not_valid_time_frame_create_campaign_today(request) -> bool:
+    """
+    Check if the campaign time frame is valid for creating a campaign today.
+    The start date should be today but the current time should not be between 8 PM ET and 12 AM ET (midnight).
+    Returns: True if the time frame is not valid, False otherwise
+    """
+    est_timezone = ZoneInfo("America/New_York")
+
+    start_date = request._json.get("startDate")
+    date_now = datetime.now(est_timezone).date().strftime("%Y-%m-%d")
+    if date_now == start_date:
+        current_est_time = datetime.now(est_timezone).time().replace(microsecond=0)
+        cutoff_lb = time(20, 0, 0)  # 8 PM ET
+        cutoff_ub = time(23, 59, 59)  # 12 AM ET (midnight)
+        if cutoff_lb <= current_est_time <= cutoff_ub:
+            return True
+    return False

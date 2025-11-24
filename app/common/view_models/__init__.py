@@ -17,6 +17,8 @@ __all__ = [
     'KeywordBidModifier',
     'AdGroup',
     'EntitiesRequest',
+    'CreateEntitiesRequest',
+    'UpdateEntitiesRequest',
     'KeywordBidModifiersRequest',
     'KeywordsResponse',
     'WorkflowActions',

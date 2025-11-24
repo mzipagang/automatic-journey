@@ -190,6 +190,107 @@ class TestEntClientServiceGateway(IsolatedAsyncioTestCase):
         )
         self.assertEqual(mock_response, response)
 
+    async def test_get_user_brands__makes_http_request_and_converts_response_to_model(self):
+        await self.tearDown()
+        product_id = self.product_id
+        account_id = "1234"
+
+        upstream_response = {
+            "data": [
+                {
+                    "brandId": "brand1",
+                    "displayName": "Brand One",
+                    "salesforceId": "SF1",
+                    "client": {"clientId": account_id}
+                },
+                {
+                    "brandId": "brand2",
+                    "displayName": "Brand Two",
+                    "salesforceId": "SF2",
+                    "client": {"clientId": "9999"}
+                }
+            ],
+            "meta": {}
+        }
+
+        self.mock_http_client.get.return_value = Response(
+            status_code=200,
+            json=upstream_response
+        )
+
+        response = await self.ent_client_service_gateway.get_user_brands(account_id)
+
+        self.mock_http_client.get.assert_called_with(
+            path=f"/ent-client-service/clients/v1/product/{product_id}/brands",
+            response_body_type="json",
+            json_has_data_field=True
+        )
+
+        expected_response = ListDataResponse[CachedRedisAdvertiser, EntClientServiceMeta](
+            data=[
+                CachedRedisAdvertiser(
+                    brandId="brand1",
+                    displayName="Brand One",
+                    salesforceId="SF1",
+                    client={"clientId": account_id}
+                )
+            ],
+            meta=EntClientServiceMeta()
+        )
+
+        self.assertEqual(1, len(response.data))
+        self.assertIsInstance(response.data[0], CachedRedisAdvertiser)
+        self.assertEqual(expected_response.data, response.data)
+        self.assertEqual(expected_response.meta, response.meta)
+
+    async def test_get_user_brands__returns_filtered_brands(self):
+        await self.tearDown()
+        product_id = self.product_id
+        account_id = "1234"
+
+        mock_response = {
+            "data": [
+                {
+                    "brandId": "brand1",
+                    "displayName": "Brand One",
+                    "salesforceId": "SF1",
+                    "client": {"clientId": account_id}
+                },
+                {
+                    "brandId": "brand2",
+                    "displayName": "Brand Two",
+                    "salesforceId": "SF2",
+                    "client": {"clientId": "9999"}
+                }
+            ],
+            "meta": {}
+        }
+
+        self.mock_http_client.get.return_value = Response(
+            status_code=200,
+            json=mock_response
+        )
+
+        result = await self.ent_client_service_gateway.get_user_brands(account_id)
+
+        self.mock_http_client.get.assert_called_with(
+            path=f"/ent-client-service/clients/v1/product/{product_id}/brands",
+            response_body_type="json",
+            json_has_data_field=True
+        )
+
+        expected_brands = [
+            CachedRedisAdvertiser(
+                brandId="brand1",
+                displayName="Brand One",
+                salesforceId="SF1",
+                client={"clientId": account_id}
+            )
+        ]
+
+        self.assertEqual(expected_brands, result.data)
+        self.assertIsNotNone(result.meta)
+
     async def test_get_addresses_by_account__makes_http_request_and_converts_response_to_model(self):
         await self.tearDown()
         product_id = self.product_id

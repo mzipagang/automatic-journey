@@ -175,4 +175,5 @@ class AdGroupRequestValidator:
         if isinstance(ad_group_request, AdGroupV2Request):
             self.__validate_new_ad_group_status(ad_group_request)
 
-        self.__validate_bid_amount_when_use_base_bid_is_false(ad_group_request.entities)
+        if ad_group_request.entities:
+            self.__validate_bid_amount_when_use_base_bid_is_false(ad_group_request.entities)

@@ -6,8 +6,10 @@ __all__ = ['Campaign',
            'CampaignPatchRequest',
            'AdGroupRequest',
            'AdGroupUpdateRequest',
+           'AdGroupUpdateRequestV2',
            'AdGroupV2',
            'BillingInfo',
            'AdGroupV2Request',
-           'AdGroupV2Response'
+           'AdGroupV2Response',
+           'AdGroupFromActivation'
            ]

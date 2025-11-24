@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from app.common.gateways.product_gateway import ProductGateway
 from app.common.model.redis import CachedProduct
 from app.common.services.lookup_service import LookupService
-from app.common.view_models import EntitiesRequest, Entity
+from app.common.view_models import EntitiesRequest, Entity, CreateEntitiesRequest
 from app.common.database.async_client import AsyncRedisClientService, RedisKeyTypes
 from app.common.gateways.bid_manager_gateway import BidManagerGateway
 from app.v2.model.downstream.activation_service import (
@@ -460,11 +460,12 @@ class BidManagerService:
             activation_response: ActivationResponseV2[ActivationResponse],
             entities_request: EntitiesRequest
     ) -> str | None:
-        bid_group_id = activation_response.data.channel_data.get("biddableEntities")
-        bid_group_response = await self.__bid_manager_gateway.get_bids(bid_group_id)
+        biddable_entities = activation_response.data.channel_data.get("biddableEntities")
         bid_group: BidsResponseData | None = None
-        if bid_group_response.found:
-            bid_group = bid_group_response.found[0]
+        if biddable_entities:
+            bid_group_response = await self.__bid_manager_gateway.get_bids(biddable_entities)
+            if bid_group_response.found:
+                bid_group = bid_group_response.found[0]
 
         base_bid = bid_group.default_bid if bid_group else 0
         if entities_request.baseBid is not None:

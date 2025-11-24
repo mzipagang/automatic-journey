@@ -9,7 +9,7 @@ from app.common.view_models import (
     KeywordsResponse,
     ListResponse,
     Entity,
-    AuthRole)
+    AuthRole, CreateEntitiesRequest)
 from app.common.model.shared import BudgetType, PublishStatus, KeywordsMeta, EntityMeta, Warnings, Meta, Page
 from app.common.model.targets import Target
 from app.v2.controllers import (
@@ -19,13 +19,15 @@ from app.v2.controllers import (
     update_ad_group,
     update_ad_group_entities,
     update_ad_group_keyword_bid_modifiers,
-    get_ad_group_eligible_keywords)
+    get_ad_group_eligible_keywords, get_available_products_by_ad_group, create_ad_group_entities)
+from app.v2.services.ad_group_product_service import AdGroupProductService
 from app.v2.view_models import AdGroupRequest, AdGroupUpdateRequest
 from app.v2.view_models.ad_group import AdGroupV2
 
 
 class TestAdGroupV2(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
+        self.__mock_ad_group_product_service = AsyncMock(spec=AdGroupProductService)
         self.mock_ad_group_service = AsyncMock()
         self.current_user = {"username": "test_user",
                         "is_agency": True,
@@ -205,6 +207,18 @@ class TestAdGroupV2(unittest.IsolatedAsyncioTestCase):
         )
 
     @patch('app.common.decorators.requires_all_roles.EntClientServiceGateway.get_user_roles')
+    async def test_create_ad_group_entities(self, get_user_roles):
+        get_user_roles.return_value = [AuthRole.ADVERTISER_API]
+        create_entities_request = MagicMock(spec=CreateEntitiesRequest)
+
+        await create_ad_group_entities(
+            ad_group_id=1,
+            create_entities_request=create_entities_request,
+            ad_group_service=self.mock_ad_group_service)
+
+        self.mock_ad_group_service.update_entities.assert_called_with(1, create_entities_request)
+
+    @patch('app.common.decorators.requires_all_roles.EntClientServiceGateway.get_user_roles')
     @patch('app.common.utils.jwt.validate_user')
     async def test_update_ad_group_keyword_bid_modifiers(self, mock_validate_user, get_user_roles):
         get_user_roles.return_value = [AuthRole.ADVERTISER_API]
@@ -251,3 +265,21 @@ class TestAdGroupV2(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(expected_response, response)
         self.assertEqual(response.meta.message, None)
         self.mock_ad_group_service.get_keywords_by_ad_group_id.assert_called_with(ad_group_id)
+
+    @patch('app.common.decorators.requires_all_roles.EntClientServiceGateway.get_user_roles')
+    async def test_get_available_products_by_ad_group__all_params_set(self, mock_get_user_roles):
+        current_user: dict = {}
+        mock_get_user_roles.return_value = [AuthRole.ADVERTISER_API]
+        await get_available_products_by_ad_group(
+            ad_group_id=1,
+            item_offset=0,
+            page_size=10,
+            current_user=current_user,
+            ad_group_product_service=self.__mock_ad_group_product_service)
+
+        mock_get_user_roles.assert_called_once()
+        self.__mock_ad_group_product_service.get_products_by_ad_group.assert_called_with(
+            current_user=current_user,
+            ad_group_id=1,
+            offset=0,
+            page_size=10)

@@ -112,19 +112,25 @@ class AdGroup(BaseModel):
         ad_group['targets'] = [target.model_dump() for target in self.targets]
         return ad_group
 
-
 class EntitiesRequest(BaseModel):
-    baseBid: Optional[float] = Field(
-        default=None,
-        title="baseBid",
-        description="The base bid used for all entities that have useBaseBid set to true."
-    )
     entities: List[Entity] = Field(
         ...,
         title="entities",
         description="The products to be advertised."
     )
 
+class UpdateEntitiesRequest(EntitiesRequest):
+    baseBid: Optional[float] = Field(
+        default=None,
+        title="baseBid",
+        description="The base bid used for all entities that have useBaseBid set to true."
+    )
+
+class CreateEntitiesRequest(EntitiesRequest):
+    baseBid: float = Field(
+        title="baseBid",
+        description="The base bid used for all entities that have useBaseBid set to true."
+    )
 
 class KeywordBidModifiersRequest(BaseModel):
     keywordBidModifiers: List[KeywordBidModifier] = Field(

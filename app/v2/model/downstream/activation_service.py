@@ -397,6 +397,7 @@ class EditableField(BaseModel):
         title="max_bid_amount",
         description="The maximum bid amount for the field.",
     )
+    last_sold_within_days: Optional[float] = None
 
 
 class ConfigurationByActivation(BaseModel):

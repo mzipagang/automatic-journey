@@ -18,7 +18,7 @@ from app.common.retry.predicates import koddi_token_fetch_failed_503
 from app.common.services.config_service import ConfigService
 from app.common.services.async_http_connection_service import AsyncHttpConnectionService
 from app.common.utils import filtered_logger
-from app.common.utils.http_response import process_json_response, process_koddi_token_response
+from app.common.utils.http_response import process_json_response, process_koddi_token_response, handle_response
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(authorizationUrl="auth", tokenUrl="token")
 
@@ -215,7 +215,7 @@ class _VerbFunctors:
 
             response = await httpx_client.get(f"{base_url}{path}", params=params, **get_base_params)
 
-            return _VerbFunctors.__handle_response(
+            return handle_response(
                 response,
                 response_body_type,
                 json_has_data_field,
@@ -240,7 +240,7 @@ class _VerbFunctors:
                 url=f"{base_url}{path}", params=params, json=json, **post_base_params)
 
 
-            return _VerbFunctors.__handle_response(
+            return handle_response(
                 response,
                 response_body_type,
                 json_has_data_field,
@@ -261,7 +261,7 @@ class _VerbFunctors:
 
             response = await httpx_client.put(f"{base_url}{path}", json=json, **put_base_params)
 
-            return _VerbFunctors.__handle_response(
+            return handle_response(
                 response,
                 response_body_type,
                 json_has_data_field,
@@ -282,7 +282,7 @@ class _VerbFunctors:
 
             response = await httpx_client.patch(f"{base_url}{path}", json=json, **patch_base_params)
 
-            return _VerbFunctors.__handle_response(
+            return handle_response(
                 response,
                 response_body_type,
                 json_has_data_field,
@@ -290,27 +290,6 @@ class _VerbFunctors:
 
         return __internal
 
-    @staticmethod
-    def __handle_response(response: Response,
-                          response_body_type: str = None,
-                          json_has_data_field: bool = False,
-                          forward_client_error_response_content=False) -> Response | None:
-        if response_body_type is None:
-            return response
-        if response_body_type == 'json':
-            return _VerbFunctors.__process_json_response(
-                response=response,
-                json_has_data_field=json_has_data_field,
-                forward_client_error_response_content=forward_client_error_response_content)
-
-    @staticmethod
-    def __process_json_response(response: Response,
-                                json_has_data_field: bool = False,
-                                forward_client_error_response_content=False) -> Response | None:
-        return process_json_response(
-            response=response,
-            json_has_data_field=json_has_data_field,
-            forward_client_error_response_content=forward_client_error_response_content)
 
     @staticmethod
     def __safely_inject_auth_param(token: str, base_params: dict) -> dict:

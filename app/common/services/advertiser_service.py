@@ -66,7 +66,7 @@ class AdvertiserService:
                 advertisers_table[long_id] = (new_short_id, advertisers_table[long_id][1])
 
     async def get_advertisers(self, account: InternalAccount, account_id: int) -> List[Advertiser]:
-        advertisers_response = await self.ent_client_service_gateway.get_brands(account.id)
+        advertisers_response = await self.ent_client_service_gateway.get_user_brands(account.id)
         advertisers = [advertiser for advertiser in advertisers_response.data]
         long_advertiser_ids = [advertiser.brandId for advertiser in advertisers]
         short_advertiser_ids = await self.lookup_service.get_advertiser_short_id_by_long_id_batch(long_advertiser_ids)

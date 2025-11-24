@@ -158,7 +158,7 @@ class TestAdvertiserService(IsolatedAsyncioTestCase):
             name="Test Account"
         )
         account_id = 1
-        self.mock_ent_client_service_gateway.get_brands.return_value = ListDataResponse(
+        self.mock_ent_client_service_gateway.get_user_brands.return_value = ListDataResponse(
             data=[
                 CachedRedisAdvertiser(
                     brandId='brand1',
@@ -188,7 +188,7 @@ class TestAdvertiserService(IsolatedAsyncioTestCase):
 
         # Assert
         self.assertEqual(expected_result, result)
-        self.mock_ent_client_service_gateway.get_brands.assert_called_once_with(
+        self.mock_ent_client_service_gateway.get_user_brands.assert_called_once_with(
             internal_account.id
         )
         self.__lookup_service.get_advertiser_short_id_by_long_id_batch.assert_called_once_with(

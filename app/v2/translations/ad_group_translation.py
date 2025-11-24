@@ -234,7 +234,7 @@ class AdGroupTranslation:
     def build_activation_payload(
             ad_group_request: AdGroupV2Request,
             budget_type: str,
-            bid_recommendations_id: str,
+            bid_recommendations_id: str | None,
             location_group_id: str,
             internal_campaign_id: str,
             placements: List[str],
@@ -258,9 +258,6 @@ class AdGroupTranslation:
                     else budget_type.capitalize()
                 ),
                 "budgetAmount": ad_group_request.budgetAmount,
-                "biddableEntities": [
-                    bid_recommendations_id
-                ],
                 "divisionBanners": [
                     location_group_id
                 ],
@@ -272,6 +269,8 @@ class AdGroupTranslation:
             },
             "campaign_id": internal_campaign_id
         }
+        if bid_recommendations_id:
+            payload['channel_data']['biddableEntities'] = [bid_recommendations_id]
         if day_parting_target is not None:
             payload["channel_data"]["dayPartingStart"] = int(day_parting_target.values[0])
             payload["channel_data"]["dayPartingEnd"] = int(day_parting_target.values[1])

@@ -59,8 +59,8 @@ class AdGroupV2(BaseModel):
                     "flag as true. It must be above the highers floor price "
                     "of the placement(s) selected."
     )
-    entities: List[Entity] = Field(
-        ...,
+    entities: Optional[List[Entity]] = Field(
+        default=[],
         title="entities",
         description="The products to be advertised."
     )
@@ -295,9 +295,8 @@ class AdGroupV2Request(BaseModel):
                     "flag as true. It must be above the highers floor price "
                     "of the placement(s) selected."
     )
-    entities: List[Entity] = Field(
-        ...,
-        min_length=1,
+    entities: Optional[List[Entity]] = Field(
+        default=[],
         title="entities",
         description="The products to be advertised."
     )
