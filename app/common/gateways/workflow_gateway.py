@@ -57,7 +57,7 @@ class WorkflowGateway:
             json=payload,
         )
         if response.status_code == httpx_codes.INTERNAL_SERVER_ERROR:
-            logger.error('Workflow API call returned error %s: %s', response.status_code, response.json())
+            logger.error('Workflow API call returned error %s: %s', response.status_code, response.content)
             raise HTTPException(status_code=500, detail="Backend service unavailable")
 
         if response.status_code == httpx_codes.OK:
