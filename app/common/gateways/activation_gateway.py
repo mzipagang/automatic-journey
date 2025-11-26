@@ -116,7 +116,7 @@ class ActivationGateway:
 
         try:
             error_detail = json.dumps(response.json())
-        except (ValueError, json.JSONDecodeError):
+        except json.JSONDecodeError:
             error_detail = response.text or str(response.content)
 
         raise HTTPException(
@@ -211,7 +211,7 @@ class ActivationGateway:
 
         try:
             result_json = result.json()
-        except (ValueError, json.JSONDecodeError):
+        except json.JSONDecodeError:
             result_json = None
         update_context(logging_extra_context, result=result_json)
         logger.info("Activation patch completed.")
