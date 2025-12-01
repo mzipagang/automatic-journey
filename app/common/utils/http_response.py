@@ -1,4 +1,5 @@
 from json import JSONDecodeError
+from typing import Any
 
 from fastapi import HTTPException
 from httpx import Response
@@ -8,6 +9,37 @@ from app.common.configuration.constants import KODDI_SSO_SERVICE_JWT_PATH
 from app.common.utils.filtered_logger import get_logger
 
 logger = get_logger(__name__)
+
+
+class SafeResponse:
+    """Wrapper around httpx Response that safely handles JSONDecodeError in .json() method.
+
+    This wrapper delegates all attributes and methods to the underlying Response object,
+    but overrides .json() to handle JSONDecodeError gracefully. This allows gateways
+    to use response.json() directly without worrying about JSONDecodeError.
+    """
+
+    def __init__(self, response: Response):
+        self._response = response
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._response, name)
+
+    def json(self) -> dict:
+        try:
+            return self._response.json()
+        except JSONDecodeError:
+            logger.error(
+                "JSONDecodeError - Unable to decode JSON response from %s. Status: %s, Content: %s",
+                self._response.url.path if hasattr(self._response, 'url') and self._response.url else 'unknown',
+                self._response.status_code,
+                self._response.content[:500] if self._response.content else None,
+                exc_info=True
+            )
+            raise HTTPException(
+                status_code=500,
+                detail="Invalid JSON response from upstream service"
+            )
 
 
 def process_koddi_token_response(response: Response) -> str:
@@ -88,10 +120,13 @@ def handle_response(response: Response,
     if response_body_type is None:
         return response
     if response_body_type == 'json':
-        return process_json_response(
+        processed_response = process_json_response(
             response=response,
             json_has_data_field=json_has_data_field,
             forward_client_error_response_content=forward_client_error_response_content)
+        # Wrap with SafeResponse to handle JSONDecodeError automatically
+        # This allows gateways to use response.json() safely
+        return SafeResponse(processed_response)
 
 
 def _log_and_raise_on_upstream_error(response: Response, info: str, path: str):
