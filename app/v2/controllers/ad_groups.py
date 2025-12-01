@@ -23,7 +23,7 @@ from app.common.services.config_service import ConfigService
 from app.common.utils import filtered_logger
 from app.common.utils.exceptions import CustomHTTPExceptionRoute
 from app.common.utils.jwt import validate_user
-from app.v2.view_models import AdGroupV2, AdGroupV2Request, AdGroupUpdateRequestV2
+from app.v2.view_models import AdGroupV2, AdGroupUpdateRequestV2, CreateAdGroupUnion
 
 logger = filtered_logger.get_logger(__name__)
 
@@ -49,7 +49,7 @@ current_config = ConfigService().get_current_config()
 )
 @requires_all_roles([AuthRole.ADVERTISER_API])
 async def create_ad_group(
-        ad_group_request: AdGroupV2Request,
+        ad_group_request: CreateAdGroupUnion,
         ad_group_service: AdGroupService = Depends(AdGroupService)
 ) -> SingleResponse[AdGroupV2]:
     return await ad_group_service.create_ad_group(ad_group_request)

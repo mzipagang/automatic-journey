@@ -10,9 +10,8 @@ from app.common.model.targets import TargetAdgroupRequest
 from app.common.services.config_service import Config
 from app.common.view_models import AdGroup, Entity
 from app.common.view_models.report import Pagination, SortOrderCommon
-from app.v2.view_models import AdGroupStatus, AdGroupUpdateRequest, Campaign
+from app.v2.view_models import AdGroupStatus, AdGroupUpdateRequest, Campaign, CreateAdGroupLegacyRequestV2
 from app.v2.view_models.report import MetricsV1, ReportRequestV1, SortFieldV1, DimensionsV1
-from app.v2.view_models import AdGroupRequest
 from app.v2.view_models.report import MetricsV2, ReportRequestV2, SortFieldV2, DimensionsV2
 
 FETCHED_PLA_RECOMMENDATIONS = {
@@ -104,7 +103,8 @@ AD_GROUP = {
     "targets": []
 }
 
-AD_GROUP_REQUEST = AdGroupRequest(
+AD_GROUP_REQUEST = CreateAdGroupLegacyRequestV2(
+    requestType="legacy",
     campaignId=131,
     name="Test Ad Group",
     startDate="2024-05-20",

@@ -8,7 +8,7 @@ from app.common.model.targets import TargetAdgroupRequest
 from app.common.utils import filtered_logger
 from app.common.utils.date_utils import parse_date
 from app.common.view_models import AdGroupStatus, Entity
-from app.v2.view_models import AdGroupV2Request, Campaign as CampaignV2, AdGroupV2
+from app.v2.view_models import AdGroupV2Request, Campaign as CampaignV2, AdGroupV2, CreateAdGroupLegacyRequestV2
 
 logger = filtered_logger.get_logger(__name__)
 
@@ -175,5 +175,5 @@ class AdGroupRequestValidator:
         if isinstance(ad_group_request, AdGroupV2Request):
             self.__validate_new_ad_group_status(ad_group_request)
 
-        if ad_group_request.entities:
+        if isinstance(ad_group_request, CreateAdGroupLegacyRequestV2):
             self.__validate_bid_amount_when_use_base_bid_is_false(ad_group_request.entities)

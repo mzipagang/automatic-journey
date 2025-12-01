@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union, Annotated, Literal
 from pydantic import Field, BaseModel, ConfigDict
 
 from app.common.model.downstream.bid_manager import BidEntityFailure
@@ -288,18 +288,6 @@ class AdGroupV2Request(BaseModel):
                     "the campaign budget."
     )
     status: AdGroupStatus = Field(..., title="status", description="The status of the ad group.")
-    baseBid: float = Field(
-        default=0.0,
-        title="baseBid",
-        description="The base bid used for all entities that have the useBaseBid "
-                    "flag as true. It must be above the highers floor price "
-                    "of the placement(s) selected."
-    )
-    entities: Optional[List[Entity]] = Field(
-        default=[],
-        title="entities",
-        description="The products to be advertised."
-    )
     targets: List[TargetAdgroupRequest] = Field(
         ...,
         title="targets",
@@ -319,6 +307,28 @@ class AdGroupV2Request(BaseModel):
         title="carouselSubtext",
         description="Add subtext to carousel ad group."
     )
+
+class CreateAdGroupLegacyRequestV2(AdGroupV2Request):
+    requestType: Literal["legacy"]
+    baseBid: float = Field(
+        title="baseBid",
+        description="The base bid used for all entities that have the useBaseBid "
+                    "flag as true. It must be above the highest floor price "
+                    "of the placement(s) selected."
+    )
+    entities: List[Entity] = Field(
+        title="entities",
+        description="The products to be advertised."
+    )
+
+class CreateAdGroupRequest(AdGroupV2Request):
+    requestType: Literal["updated"]
+    model_config = ConfigDict(extra="forbid")
+
+CreateAdGroupUnion = Annotated[
+    Union[CreateAdGroupLegacyRequestV2, CreateAdGroupRequest],
+    Field(discriminator="requestType")
+]
 
 class AdGroupV2Response[T](BaseModel):
     data: T = Field(title="data", description="The data for the ad group.")

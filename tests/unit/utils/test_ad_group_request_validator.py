@@ -355,7 +355,7 @@ class TestAdGroupRequestValidatorTargets(unittest.TestCase):
     def test_validate_ad_group_request_single_call_campaign_without_enddate (
             self,
             mock_validate_bid_amount_when_use_base_bid_is_false: MagicMock,
-            mock_extra_validations: MagicMock()
+            mock_extra_validations: MagicMock
     ):
         # Arrange
         ad_group_request = AD_GROUP_REQUEST

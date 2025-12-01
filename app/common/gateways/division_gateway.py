@@ -65,7 +65,7 @@ class DivisionGateway:
     async def create_location_group(self, payload: dict) -> LocationGroup:
         path = '/location-groups/v1/'
         response = await self.__external_api_http_client.post(
-            path=path, json=payload, forward_client_error_response_content=True)
+            path=path, json=payload,  forward_client_error_response_content=True, response_body_type="json")
         return LocationGroup(**response.json())
 
     async def get_location_groups(self, division_banners: List[str]) -> LocationGroupResponseData:

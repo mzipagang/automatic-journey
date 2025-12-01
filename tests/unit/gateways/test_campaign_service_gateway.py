@@ -302,6 +302,7 @@ class TestCampaignServiceGateway(IsolatedAsyncioTestCase):
         self.__mock_async_external_http_client_service.post.assert_called_once_with(
             path="/map-campaign-service/v1/campaign/1999/publish",
             json={"fields": []},
+            response_body_type='json',
             forward_client_error_response_content=True
         )
 
@@ -330,6 +331,7 @@ class TestCampaignServiceGateway(IsolatedAsyncioTestCase):
         self.__mock_async_external_http_client_service.post.assert_called_once_with(
             path="/map-campaign-service/v1/campaign/1999/publish",
             json={"fields": []},
+            response_body_type='json',
             forward_client_error_response_content=True
         )
 
@@ -355,6 +357,7 @@ class TestCampaignServiceGateway(IsolatedAsyncioTestCase):
         self.__mock_async_external_http_client_service.post.assert_called_once_with(
             path="/map-campaign-service/v1/campaign/2000/publish",
             json={"fields": []},
+            response_body_type='json',
             forward_client_error_response_content=True
         )
 
@@ -383,6 +386,7 @@ class TestCampaignServiceGateway(IsolatedAsyncioTestCase):
         self.__mock_async_external_http_client_service.post.assert_called_once_with(
             path="/map-campaign-service/v1/campaign/2000/publish",
             json={"fields": []},
+            response_body_type='json',
             forward_client_error_response_content=True
         )
 

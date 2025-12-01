@@ -7,6 +7,7 @@ from app.common.middleware.request_context_middleware import RequestContextMiddl
 from app.common.middleware import TraceAugmentationMiddleware
 from app.common.utils import filtered_logger
 from app.common.middleware.user_info_middleware import UserInfoMiddleware
+from app.v2.middleware.ad_group_discriminator_middleware import AdGroupDiscriminatorMiddleware
 
 logger = filtered_logger.get_logger(__name__)
 
@@ -19,6 +20,7 @@ class AppAugmenter:
         app.add_middleware(RequestContextMiddleware)
         app.add_middleware(TraceAugmentationMiddleware)
         app.add_middleware(DeployedVersionMiddleware)
+        app.add_middleware(AdGroupDiscriminatorMiddleware)
 
         # ClearContextVarsMiddleware must be last in the list of middlewares
         app.add_middleware(ClearContextVarsMiddleware)

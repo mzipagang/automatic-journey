@@ -21,14 +21,15 @@ from app.v2.controllers import (
     update_ad_group_keyword_bid_modifiers,
     get_ad_group_eligible_keywords, get_available_products_by_ad_group, create_ad_group_entities)
 from app.v2.services.ad_group_product_service import AdGroupProductService
-from app.v2.view_models import AdGroupRequest, AdGroupUpdateRequest
-from app.v2.view_models.ad_group import AdGroupV2
+from app.v2.services.ad_group_service import AdGroupService
+from app.v2.view_models import AdGroupRequest, AdGroupUpdateRequest, CreateAdGroupLegacyRequestV2
+from app.v2.view_models.ad_group import AdGroupV2, CreateAdGroupRequest
 
 
 class TestAdGroupV2(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.__mock_ad_group_product_service = AsyncMock(spec=AdGroupProductService)
-        self.mock_ad_group_service = AsyncMock()
+        self.mock_ad_group_service = AsyncMock(spec=AdGroupService)
         self.current_user = {"username": "test_user",
                         "is_agency": True,
                         "internal": True,
@@ -87,6 +88,32 @@ class TestAdGroupV2(unittest.IsolatedAsyncioTestCase):
         )
 
         self.mock_ad_group_service.create_ad_group.assert_called_once()
+
+    @patch('app.common.decorators.requires_all_roles.EntClientServiceGateway.get_user_roles')
+    async def test_create_ad_group__legacy_request(self, get_user_roles):
+        get_user_roles.return_value = [AuthRole.ADVERTISER_API]
+
+        create_ad_group_request: MagicMock = MagicMock(spec=CreateAdGroupLegacyRequestV2)
+
+        await create_ad_group(
+            ad_group_request=create_ad_group_request,
+            ad_group_service=self.mock_ad_group_service
+        )
+
+        self.mock_ad_group_service.create_ad_group.assert_called_with(create_ad_group_request)
+
+    @patch('app.common.decorators.requires_all_roles.EntClientServiceGateway.get_user_roles')
+    async def test_create_ad_group__updated_request(self, get_user_roles):
+        get_user_roles.return_value = [AuthRole.ADVERTISER_API]
+
+        create_ad_group_request: MagicMock = MagicMock(spec=CreateAdGroupRequest)
+
+        await create_ad_group(
+            ad_group_request=create_ad_group_request,
+            ad_group_service=self.mock_ad_group_service
+        )
+
+        self.mock_ad_group_service.create_ad_group.assert_called_with(create_ad_group_request)
 
     @patch('app.common.decorators.requires_all_roles.EntClientServiceGateway.get_user_roles')
     async def test_get_ad_group_by_campaign(self, get_user_roles):

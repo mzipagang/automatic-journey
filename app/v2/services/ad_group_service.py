@@ -57,7 +57,7 @@ from app.v2.translations.ad_group_translation import AdGroupTranslation
 from app.v2.translations.error_translation import ErrorTranslation
 from app.v2.translations.target_translation import TargetTranslation
 from app.v2.utils.ad_group_validations import AdGroupRequestValidator
-from app.v2.view_models import AdGroupV2Request, Campaign as CampaignV2
+from app.v2.view_models import AdGroupV2Request, Campaign as CampaignV2, CreateAdGroupLegacyRequestV2
 from app.v2.view_models.ad_group import AdGroupV2, AdGroupUpdateRequestV2, \
     SecretAdGroupUpdateRequest, AdGroupFromActivation
 
@@ -424,7 +424,7 @@ class AdGroupService:
         brand_codes = await self.__get_brand_codes_from_advertisers(campaign_response.data)
 
         bid_recommendations_id = None
-        if ad_group_request.entities:
+        if isinstance(ad_group_request, CreateAdGroupLegacyRequestV2):
             bid_recommendations_id, _ = (
                 await self.__build_bid_object(
                     entities_request=ad_group_request.entities,

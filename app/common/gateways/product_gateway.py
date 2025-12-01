@@ -3,7 +3,16 @@ from typing import List
 from fastapi import Depends
 
 from app.common.configuration.constants import UPCS_LAST_SOLD_WITHIN_DAYS
-from app.common.model.downstream.product_manager import Product, ProductManagerMeta, ProductSearchResponse
+from app.common.model.downstream.product_manager import (
+    Product,
+    ProductManagerMeta,
+    ProductSearchResponse,
+    ProductSelection,
+    ProductSnapshot,
+    CreateProductSelection,
+    CreateProductSnapshot,
+    CreateProductSelectionParams
+)
 from app.common.model.harness_feature_flags import HarnessFeatureFlags
 from app.common.model.shared import ListDataResponse, SingleDataResponse
 from app.common.services.async_http_client_service import AsyncExternalApiHttpClientService
@@ -78,3 +87,55 @@ class ProductGateway:
         )
 
         return SingleDataResponse[ProductSearchResponse, ProductManagerMeta](**response.json())
+
+    async def get_product_selection(self, product_selection_id: str) -> ProductSelection:
+        path = f"/product-manager/product-selection/{product_selection_id}"
+        response = await self.__external_api_http_client.get(
+            path=path,
+            response_body_type="json",
+            forward_client_error_response_content=True
+        )
+
+        return ProductSelection(**response.json())
+
+    async def create_product_selection(self, upcs: List[str]) -> str:
+        path = "/product-manager/product-selection"
+        request_body = CreateProductSelection.from_upcs(upcs)
+        request_params = CreateProductSelectionParams(
+            enforceProductGroupCreationValidation=True
+        )
+
+        response = await self.__external_api_http_client.post(
+            path=path,
+            params=request_params.model_dump(),
+            json=request_body.model_dump(),
+            response_body_type="json",
+            forward_client_error_response_content=True
+        )
+
+        product_selection = ProductSelection(**response.json())
+        return product_selection.id
+
+    async def get_product_snapshot(self, product_snapshot_id: str) -> ProductSnapshot:
+        path = f"/product-manager/snapshot/{product_snapshot_id}"
+        response = await self.__external_api_http_client.get(
+            path=path,
+            response_body_type="json",
+            forward_client_error_response_content=True
+        )
+
+        return ProductSnapshot(**response.json())
+
+    async def create_product_snapshot(self, product_selection_id: str) -> str:
+        path = "/product-manager/snapshot"
+        request_body = CreateProductSnapshot(id=product_selection_id)
+
+        response = await self.__external_api_http_client.post(
+            path=path,
+            json=request_body.model_dump(),
+            response_body_type="json",
+            forward_client_error_response_content=True
+        )
+
+        product_snapshot = ProductSnapshot(**response.json())
+        return product_snapshot.id

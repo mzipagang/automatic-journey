@@ -99,6 +99,7 @@ class ActivationGateway:
     async def publish_activation(self, internal_activation_id: str) -> ActivationResponse:
         response = await self.__upstream_patch(
             activation_id=internal_activation_id,
+            response_body_type="json",
             path = f"{self.ACTIVATION_ENDPOINT}/{internal_activation_id}/publish"
         )
 
@@ -114,15 +115,10 @@ class ActivationGateway:
             internal_activation_id,
         )
 
-        try:
-            error_detail = json.dumps(response.json())
-        except json.JSONDecodeError:
-            error_detail = response.text or str(response.content)
-
         raise HTTPException(
             status_code=400,
             detail=f"Publishing failed for activation id {internal_activation_id} "
-                   f"with error: {error_detail}",
+                   f"with error: {json.dumps(response.json())}",
         )
 
     async def validate_activation(self, internal_activation_id: str) -> bool:
@@ -209,11 +205,7 @@ class ActivationGateway:
             forward_client_error_response_content=forward_client_error_response_content
         )
 
-        try:
-            result_json = result.json()
-        except json.JSONDecodeError:
-            result_json = None
-        update_context(logging_extra_context, result=result_json)
+        update_context(logging_extra_context, result=result.json())
         logger.info("Activation patch completed.")
 
         return result

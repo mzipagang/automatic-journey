@@ -39,7 +39,7 @@ class CreativeServiceGateway:
     async def init_creative_group(self, request: CreativeAdGroupRequest, template_group_id: str) -> CreativeAdGroupCreateResponse:
         request_path: str = f"{self.__SERVICE_BASE_PATH}/creative-designs/groups?templateGroupId={template_group_id}"
 
-        response = await self.__internal_http_client.post(path=request_path, json=request.model_dump())
+        response = await self.__internal_http_client.post(path=request_path, response_body_type="json", json=request.model_dump())
         try:
             return CreativeAdGroupCreateResponse(**response.json())
         except json.decoder.JSONDecodeError:

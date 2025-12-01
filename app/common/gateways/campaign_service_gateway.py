@@ -235,6 +235,7 @@ class CampaignServiceGateway:
         response = await self.__external_api_http_client.post(
             path=path,
             json={"fields": []},
+            response_body_type="json",
             forward_client_error_response_content=True)
         logger.debug("Called Publishing Service with url %s", path)
 

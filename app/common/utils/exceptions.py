@@ -128,7 +128,11 @@ def convert_validation_error(error):
     }
 
 def generate_error_reason_from_validation_error(error):
-    location = error['loc'][1:]
+    error_loc = error['loc']
+    if len(error_loc) > 1 and error_loc[1] in ["legacy", "updated"]:
+        location = error['loc'][2:]
+    else:
+        location = error['loc'][1:]
     json_location = ""
     for path_part in location:
         if isinstance(path_part, int):
